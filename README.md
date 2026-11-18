@@ -127,8 +127,10 @@ videos/        5초 추적 MP4
 - [Pexels License](https://www.pexels.com/license/): 무료 사용과 수정을 허용하며 출처 표시는 필수가 아닙니다. 이 프로젝트는 제작자와 원본을 명시합니다.
 - [Ultralytics YOLOv8](https://docs.ultralytics.com/models/yolov8/), [Train](https://docs.ultralytics.com/modes/train/), [Track](https://docs.ultralytics.com/modes/track/).
 
+데이터, 파생 모델, 소프트웨어 및 영상의 공개 조건은 [`NOTICE.md`](NOTICE.md)에 정리했습니다. `best.pt`는 KITTI 조건에 따라 과제·학술·비상업 용도로만 제공하며, 원본 KITTI 데이터와 원본 Pexels 영상은 저장소에 포함하지 않습니다.
+
 교수님 강의자료는 로컬 분석에만 사용했으며 공개 저장소에서 제외합니다.
 
 ## 공개 상태
 
-GitHub 저장소 생성과 공개 푸시는 사용자 최종 승인 후 수행합니다. 현재 공개 URL은 없습니다.
+예정 저장소 이름은 `mk-isos/ML-YOLO-Assignment2`입니다. GitHub 저장소 생성과 공개 푸시는 사용자 최종 승인 후 수행하며, 현재 공개 URL은 없습니다.

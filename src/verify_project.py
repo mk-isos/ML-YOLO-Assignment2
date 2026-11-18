@@ -108,19 +108,53 @@ def main() -> None:
     report = PROJECT_ROOT / "reports/final_report.pdf"
     reader = PdfReader(str(report))
     extracted_text = "\n".join(page.extract_text() or "" for page in reader.pages)
+    environment = read_json(METRICS / "environment.json")
     metric_tokens = [
         f"{float(test['overall']['map50']):.4f}",
         f"{float(test['overall']['map50_95']):.4f}",
         f"{duration:.3f}",
     ]
+    consistency_tokens = {
+        "python_torch": f"{environment['python']} / {environment['torch']}",
+        "ultralytics": str(environment["ultralytics"]),
+        "completed_epochs": f"{training['completed_epochs']} Epoch",
+        "best_epoch": f"Epoch는 {training['best_epoch']}",
+        "train_images": str(dataset["splits"]["train"]["images"]),
+        "train_car": (
+            f"{dataset['splits']['train']['class_images']['car']} / "
+            f"{dataset['splits']['train']['class_instances']['car']}"
+        ),
+        "train_pedestrian": (
+            f"{dataset['splits']['train']['class_images']['pedestrian']} / "
+            f"{dataset['splits']['train']['class_instances']['pedestrian']}"
+        ),
+        "train_cyclist": (
+            f"{dataset['splits']['train']['class_images']['cyclist']} / "
+            f"{dataset['splits']['train']['class_instances']['cyclist']}"
+        ),
+        "test_precision": f"{float(test['overall']['precision']):.4f}",
+        "test_recall": f"{float(test['overall']['recall']):.4f}",
+        "test_map50": f"{float(test['overall']['map50']):.4f}",
+        "test_map50_95": f"{float(test['overall']['map50_95']):.4f}",
+        "car_map50_95": f"{float(test['per_class']['car']['map50_95']):.4f}",
+        "pedestrian_map50_95": f"{float(test['per_class']['pedestrian']['map50_95']):.4f}",
+        "cyclist_map50_95": f"{float(test['per_class']['cyclist']['map50_95']):.4f}",
+        "video_duration_frames": f"{duration:.3f}초 / {tracking['decoded_frames']} 프레임",
+    }
+    consistency = {
+        key: {"expected": token, "present": token in extracted_text}
+        for key, token in consistency_tokens.items()
+    }
     checks["pdf_report"] = {
         "passed": report.exists()
         and len(reader.pages) >= 8
-        and all(token in extracted_text for token in metric_tokens),
+        and all(token in extracted_text for token in metric_tokens)
+        and all(item["present"] for item in consistency.values()),
         "details": {
             "pages": len(reader.pages),
             "bytes": report.stat().st_size,
             "metric_tokens": metric_tokens,
+            "log_report_consistency": consistency,
             "sha256": sha256_file(report),
         },
     }

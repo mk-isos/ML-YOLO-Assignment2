@@ -1,0 +1,135 @@
+{
+  "overall": {
+    "precision": 0.6612203381183187,
+    "recall": 0.4534980414691179,
+    "map50": 0.5034788113162922,
+    "map50_95": 0.26924530986355427
+  },
+  "per_class": {
+    "car": {
+      "precision": 0.8235173322203266,
+      "recall": 0.7873050698909736,
+      "map50": 0.8409396912698873,
+      "map50_95": 0.5608738751076537
+    },
+    "pedestrian": {
+      "precision": 0.7467776300551032,
+      "recall": 0.34608282741015284,
+      "map50": 0.4426351372391082,
+      "map50_95": 0.1473912341824027
+    },
+    "cyclist": {
+      "precision": 0.41336605207952615,
+      "recall": 0.2271062271062271,
+      "map50": 0.22686160543988132,
+      "map50_95": 0.0994708203006064
+    }
+  },
+  "speed_ms_per_image": {
+    "preprocess": 0.22391690433347342,
+    "inference": 1.120384689398823,
+    "loss": 7.074546124301435e-05,
+    "postprocess": 6.2587630909479826
+  },
+  "evaluated_at_utc": "2026-11-18T09:17:50.864003+00:00",
+  "evaluation_seconds": 21.062982750008814,
+  "model": "/Users/moonki/Desktop/ML-YOLO-Assignment2/models/best.pt",
+  "dataset": "/Users/moonki/Desktop/ML-YOLO-Assignment2/data/processed/kitti3/data.yaml",
+  "split": "test",
+  "test_images": 1076,
+  "device": "mps",
+  "python": "3.12.9",
+  "torch": "2.15.0",
+  "ultralytics": "8.4.215",
+  "run_directory": "/Users/moonki/Desktop/ML-YOLO-Assignment2/results/runs/test_evaluation",
+  "plots": [
+    "results/plots/test_confusion_matrix.png",
+    "results/plots/test_confusion_matrix_normalized.png",
+    "results/plots/test_F1_curve.png",
+    "results/plots/test_P_curve.png",
+    "results/plots/test_PR_curve.png",
+    "results/plots/test_R_curve.png"
+  ],
+  "case_analysis": {
+    "thresholds": {
+      "confidence": 0.25,
+      "iou_match": 0.5,
+      "nms_iou": 0.7
+    },
+    "aggregate": {
+      "tp": 3607,
+      "fp": 964,
+      "fn": 1717,
+      "precision": 0.7891052286151826,
+      "recall": 0.6774981217129977
+    },
+    "selected_cases": [
+      {
+        "image": "005917.png",
+        "ground_truth_count": 9,
+        "prediction_count": 9,
+        "tp": 9,
+        "fp": 0,
+        "fn": 0,
+        "score": 9,
+        "category": "success",
+        "output": "results/predictions/success_1_005917.jpg"
+      },
+      {
+        "image": "000639.png",
+        "ground_truth_count": 8,
+        "prediction_count": 8,
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "score": 8,
+        "category": "success",
+        "output": "results/predictions/success_2_000639.jpg"
+      },
+      {
+        "image": "001928.png",
+        "ground_truth_count": 8,
+        "prediction_count": 8,
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "score": 8,
+        "category": "success",
+        "output": "results/predictions/success_3_001928.jpg"
+      },
+      {
+        "image": "004139.png",
+        "ground_truth_count": 22,
+        "prediction_count": 12,
+        "tp": 7,
+        "fp": 5,
+        "fn": 15,
+        "score": -28,
+        "category": "failure",
+        "output": "results/predictions/failure_1_004139.jpg"
+      },
+      {
+        "image": "000134.png",
+        "ground_truth_count": 15,
+        "prediction_count": 5,
+        "tp": 2,
+        "fp": 3,
+        "fn": 13,
+        "score": -27,
+        "category": "failure",
+        "output": "results/predictions/failure_2_000134.jpg"
+      },
+      {
+        "image": "005391.png",
+        "ground_truth_count": 12,
+        "prediction_count": 6,
+        "tp": 1,
+        "fp": 5,
+        "fn": 11,
+        "score": -26,
+        "category": "failure",
+        "output": "results/predictions/failure_3_005391.jpg"
+      }
+    ]
+  }
+}

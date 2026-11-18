@@ -1,0 +1,36 @@
+{
+  "run": "/Users/moonki/Desktop/ML-YOLO-Assignment2/results/runs/yolov8n_kitti3_30e",
+  "completed_epochs": 16,
+  "configured_epochs": 30,
+  "duration_seconds": 3752.549686791026,
+  "best_epoch": 8,
+  "best_validation": {
+    "precision": 0.79656,
+    "recall": 0.68189,
+    "map50": 0.71768,
+    "map50_95": 0.40616
+  },
+  "final_losses": {
+    "train_box": 1.0136,
+    "train_cls": 0.63603,
+    "train_dfl": 0.96312,
+    "val_box": 1.29455,
+    "val_cls": 0.85181,
+    "val_dfl": 1.0405
+  },
+  "weight": "models/best.pt",
+  "weight_bytes": 6467370,
+  "weight_sha256": "7228f60ae38af5ca3dd1ec88686003bdcb0571aa4f865821b6caaf73a0cb8264",
+  "model_names": {
+    "0": "car",
+    "1": "pedestrian",
+    "2": "cyclist"
+  },
+  "plots": [
+    "results/plots/training_curves.png",
+    "results/plots/training_labels.jpg",
+    "results/plots/validation_confusion_matrix.png",
+    "results/plots/validation_confusion_matrix_normalized.png",
+    "results/plots/validation_predictions.jpg"
+  ]
+}

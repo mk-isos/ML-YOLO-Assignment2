@@ -1,0 +1,121 @@
+{
+  "created_at_utc": "2026-11-18T09:21:43.993742+00:00",
+  "model": "/Users/moonki/Desktop/ML-YOLO-Assignment2/models/best.pt",
+  "model_sha256": "7228f60ae38af5ca3dd1ec88686003bdcb0571aa4f865821b6caaf73a0cb8264",
+  "source": {
+    "file": "data/raw/tracking_source_pexels_4772894.mp4",
+    "page_url": "https://www.pexels.com/video/video-of-cityscape-during-daytime-4772894/",
+    "direct_file_url": "https://videos.pexels.com/video-files/4772894/4772894-hd_1920_1080_30fps.mp4",
+    "creator": "German Korb",
+    "title": "Video Of Cityscape During Daytime",
+    "license_name": "Pexels License",
+    "license_url": "https://www.pexels.com/license/",
+    "source_duration_seconds": 116.381667,
+    "source_fps": 29.97002997,
+    "source_resolution": [
+      1920,
+      1080
+    ]
+  },
+  "clip": {
+    "start_seconds": 0.0,
+    "duration_seconds": 5.0,
+    "output_fps": 30
+  },
+  "tracking": {
+    "tracker": "bytetrack.yaml",
+    "confidence": 0.25,
+    "iou": 0.7,
+    "image_size": 640
+  },
+  "device": "mps",
+  "output": "videos/kitti3_tracking_5s.mp4",
+  "representative_frame": "results/plots/tracking_frame.jpg",
+  "output_sha256": "2e5d182c783537fcc32b30fe5bd72a9afbb27abb06a112bcee52d962bb67b5af",
+  "ffprobe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "pix_fmt": "yuv420p",
+        "r_frame_rate": "30/1",
+        "avg_frame_rate": "30/1",
+        "nb_frames": "150"
+      }
+    ],
+    "format": {
+      "duration": "5.000000",
+      "size": "4586271"
+    }
+  },
+  "decoded_frames": 150,
+  "processed_frames": 150,
+  "inference_seconds": 7.849542084033601,
+  "detections": 1244,
+  "detections_with_track_id": 1244,
+  "per_class_detection_count": {
+    "car": 510,
+    "cyclist": 359,
+    "pedestrian": 375
+  },
+  "per_class_frame_count": {
+    "car": 150,
+    "pedestrian": 148,
+    "cyclist": 138
+  },
+  "per_class_unique_track_ids": {
+    "car": [
+      1,
+      4,
+      8,
+      12,
+      16,
+      33,
+      72,
+      91,
+      92,
+      102,
+      103,
+      107
+    ],
+    "pedestrian": [
+      3,
+      5,
+      6,
+      7,
+      9,
+      10,
+      14,
+      50,
+      82
+    ],
+    "cyclist": [
+      1,
+      2,
+      3,
+      5,
+      9,
+      10,
+      11,
+      39,
+      41,
+      42,
+      50,
+      73,
+      74,
+      80,
+      90,
+      92
+    ]
+  },
+  "csv": "results/metrics/tracking_detections.csv",
+  "verification": {
+    "duration_tolerance_seconds": 0.1,
+    "duration_valid": true,
+    "decode_valid": true,
+    "tracking_ids_present": true
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "valid": true,
+  "errors": [],
+  "splits": {
+    "train": {
+      "images": 5226,
+      "labels": 5226,
+      "invalid_rows": 0,
+      "class_images": {
+        "car": 4908,
+        "pedestrian": 1076,
+        "cyclist": 794
+      },
+      "class_instances": {
+        "car": 22450,
+        "pedestrian": 3025,
+        "cyclist": 1159
+      }
+    },
+    "val": {
+      "images": 1179,
+      "labels": 1179,
+      "invalid_rows": 0,
+      "class_images": {
+        "car": 739,
+        "pedestrian": 442,
+        "cyclist": 176
+      },
+      "class_instances": {
+        "car": 2238,
+        "pedestrian": 465,
+        "cyclist": 195
+      }
+    },
+    "test": {
+      "images": 1076,
+      "labels": 1076,
+      "invalid_rows": 0,
+      "class_images": {
+        "car": 1037,
+        "pedestrian": 261,
+        "cyclist": 171
+      },
+      "class_instances": {
+        "car": 4054,
+        "pedestrian": 997,
+        "cyclist": 273
+      }
+    }
+  },
+  "known_limitation": "The packaged KITTI detection data provides no recording-sequence ID. Scene groups are inferred from perceptual hashes and low-resolution pixel similarity; undetected same-drive or similar-scene leakage may remain."
+}

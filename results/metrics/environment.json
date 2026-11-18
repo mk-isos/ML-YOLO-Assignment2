@@ -1,0 +1,12 @@
+{
+  "python": "3.12.9",
+  "platform": "macOS-15.3.2-arm64-arm-64bit",
+  "machine": "arm64",
+  "macos": "15.3.2",
+  "torch": "2.15.0",
+  "ultralytics": "8.4.215",
+  "mps_built": true,
+  "mps_available": true,
+  "mps_backward_loss": 0.3546571433544159,
+  "mps_backward_seconds": 0.661374417017214
+}

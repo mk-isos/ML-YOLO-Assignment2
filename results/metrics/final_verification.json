@@ -1,0 +1,164 @@
+{
+  "verified_at_utc": "2026-11-18T09:28:47.961187+00:00",
+  "core_passed": true,
+  "all_passed_including_github": false,
+  "checks": {
+    "dataset_valid": {
+      "passed": true,
+      "details": []
+    },
+    "three_classes_and_counts": {
+      "passed": true,
+      "details": {
+        "train": {
+          "car": 4908,
+          "pedestrian": 1076,
+          "cyclist": 794
+        },
+        "val": {
+          "car": 739,
+          "pedestrian": 442,
+          "cyclist": 176
+        },
+        "test": {
+          "car": 1037,
+          "pedestrian": 261,
+          "cyclist": 171
+        }
+      }
+    },
+    "model_loadable_exact_three_classes": {
+      "passed": true,
+      "details": {
+        "path": "models/best.pt",
+        "names": {
+          "0": "car",
+          "1": "pedestrian",
+          "2": "cyclist"
+        },
+        "bytes": 6467370,
+        "sha256": "7228f60ae38af5ca3dd1ec88686003bdcb0571aa4f865821b6caaf73a0cb8264"
+      }
+    },
+    "fine_tuning_executed": {
+      "passed": true,
+      "details": {
+        "completed_epochs": 16,
+        "duration_seconds": 3752.549686791026,
+        "best_epoch": 8
+      }
+    },
+    "held_out_test_metrics": {
+      "passed": true,
+      "details": {
+        "images": 1076,
+        "precision": 0.6612203381183187,
+        "recall": 0.4534980414691179,
+        "map50": 0.5034788113162922,
+        "map50_95": 0.26924530986355427
+      }
+    },
+    "tracking_video": {
+      "passed": true,
+      "details": {
+        "duration_seconds": 5.0,
+        "decoded_frames": 150,
+        "per_class_frame_count": {
+          "car": 150,
+          "pedestrian": 148,
+          "cyclist": 138
+        },
+        "detections_with_track_id": 1244,
+        "sha256": "2e5d182c783537fcc32b30fe5bd72a9afbb27abb06a112bcee52d962bb67b5af"
+      }
+    },
+    "video_full_decode": {
+      "passed": true,
+      "details": ""
+    },
+    "pdf_report": {
+      "passed": true,
+      "details": {
+        "pages": 10,
+        "bytes": 2290477,
+        "metric_tokens": [
+          "0.5035",
+          "0.2692",
+          "5.000"
+        ],
+        "log_report_consistency": {
+          "python_torch": {
+            "expected": "3.12.9 / 2.15.0",
+            "present": true
+          },
+          "ultralytics": {
+            "expected": "8.4.215",
+            "present": true
+          },
+          "completed_epochs": {
+            "expected": "16 Epoch",
+            "present": true
+          },
+          "best_epoch": {
+            "expected": "Epoch는 8",
+            "present": true
+          },
+          "train_images": {
+            "expected": "5226",
+            "present": true
+          },
+          "train_car": {
+            "expected": "4908 / 22450",
+            "present": true
+          },
+          "train_pedestrian": {
+            "expected": "1076 / 3025",
+            "present": true
+          },
+          "train_cyclist": {
+            "expected": "794 / 1159",
+            "present": true
+          },
+          "test_precision": {
+            "expected": "0.6612",
+            "present": true
+          },
+          "test_recall": {
+            "expected": "0.4535",
+            "present": true
+          },
+          "test_map50": {
+            "expected": "0.5035",
+            "present": true
+          },
+          "test_map50_95": {
+            "expected": "0.2692",
+            "present": true
+          },
+          "car_map50_95": {
+            "expected": "0.5609",
+            "present": true
+          },
+          "pedestrian_map50_95": {
+            "expected": "0.1474",
+            "present": true
+          },
+          "cyclist_map50_95": {
+            "expected": "0.0995",
+            "present": true
+          },
+          "video_duration_frames": {
+            "expected": "5.000초 / 150 프레임",
+            "present": true
+          }
+        },
+        "sha256": "b85685bb4d597bf3ebf8c9e78a891d240796a323517819fffd0a64147eb134de"
+      }
+    },
+    "github_public_access": {
+      "passed": false,
+      "pending_user_approval": true,
+      "details": "Repository creation and public push intentionally deferred until explicit approval."
+    }
+  }
+}
