@@ -133,4 +133,4 @@ videos/        5초 추적 MP4
 
 ## 공개 상태
 
-예정 저장소 이름은 `mk-isos/ML-YOLO-Assignment2`입니다. GitHub 저장소 생성과 공개 푸시는 사용자 최종 승인 후 수행하며, 현재 공개 URL은 없습니다.
+공개 저장소: [mk-isos/ML-YOLO-Assignment2](https://github.com/mk-isos/ML-YOLO-Assignment2)

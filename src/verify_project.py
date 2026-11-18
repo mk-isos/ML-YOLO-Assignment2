@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import subprocess
@@ -16,6 +17,7 @@ from ultralytics import YOLO
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 METRICS = PROJECT_ROOT / "results/metrics"
 EXPECTED_NAMES = {0: "car", 1: "pedestrian", 2: "cyclist"}
+DEFAULT_GITHUB_URL = "https://github.com/mk-isos/ML-YOLO-Assignment2"
 
 
 def sha256_file(path: Path) -> str:
@@ -32,7 +34,14 @@ def read_json(path: Path) -> dict[str, object]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--github-url", default=DEFAULT_GITHUB_URL)
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
     checks: dict[str, dict[str, object]] = {}
 
     dataset = read_json(METRICS / "dataset_validation.json")
@@ -159,10 +168,39 @@ def main() -> None:
         },
     }
 
+    readme_text = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+    remote = subprocess.run(
+        ["git", "remote", "get-url", "origin"],
+        cwd=PROJECT_ROOT,
+        text=True,
+        capture_output=True,
+    )
+    remote_url = remote.stdout.strip().removesuffix(".git")
+    repository = subprocess.run(
+        ["gh", "repo", "view", args.github_url, "--json", "url,visibility"],
+        cwd=PROJECT_ROOT,
+        text=True,
+        capture_output=True,
+    )
+    repository_data: dict[str, object] = {}
+    if repository.returncode == 0:
+        repository_data = json.loads(repository.stdout)
+    github_checks = {
+        "origin_matches": remote.returncode == 0 and remote_url == args.github_url,
+        "readme_contains_url": args.github_url in readme_text,
+        "report_contains_url": args.github_url in extracted_text,
+        "repository_reachable": repository.returncode == 0,
+        "repository_public": repository_data.get("visibility") == "PUBLIC",
+    }
     checks["github_public_access"] = {
-        "passed": False,
-        "pending_user_approval": True,
-        "details": "Repository creation and public push intentionally deferred until explicit approval.",
+        "passed": all(github_checks.values()),
+        "details": {
+            "url": args.github_url,
+            "origin": remote_url,
+            "repository": repository_data,
+            "checks": github_checks,
+            "gh_error": repository.stderr.strip(),
+        },
     }
     core_checks = [check for name, check in checks.items() if name != "github_public_access"]
     report_data = {

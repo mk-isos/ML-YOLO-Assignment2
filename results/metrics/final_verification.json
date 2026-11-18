@@ -1,7 +1,7 @@
 {
-  "verified_at_utc": "2026-11-18T09:28:47.961187+00:00",
+  "verified_at_utc": "2026-11-18T09:38:41.743224+00:00",
   "core_passed": true,
-  "all_passed_including_github": false,
+  "all_passed_including_github": true,
   "checks": {
     "dataset_valid": {
       "passed": true,
@@ -80,7 +80,7 @@
       "passed": true,
       "details": {
         "pages": 10,
-        "bytes": 2290477,
+        "bytes": 2290158,
         "metric_tokens": [
           "0.5035",
           "0.2692",
@@ -152,13 +152,27 @@
             "present": true
           }
         },
-        "sha256": "b85685bb4d597bf3ebf8c9e78a891d240796a323517819fffd0a64147eb134de"
+        "sha256": "7919fa823e3f9c88fc4c90b94447f477dd91ae30c2c1bce41e5b1758c2478c81"
       }
     },
     "github_public_access": {
-      "passed": false,
-      "pending_user_approval": true,
-      "details": "Repository creation and public push intentionally deferred until explicit approval."
+      "passed": true,
+      "details": {
+        "url": "https://github.com/mk-isos/ML-YOLO-Assignment2",
+        "origin": "https://github.com/mk-isos/ML-YOLO-Assignment2",
+        "repository": {
+          "url": "https://github.com/mk-isos/ML-YOLO-Assignment2",
+          "visibility": "PUBLIC"
+        },
+        "checks": {
+          "origin_matches": true,
+          "readme_contains_url": true,
+          "report_contains_url": true,
+          "repository_reachable": true,
+          "repository_public": true
+        },
+        "gh_error": ""
+      }
     }
   }
 }
