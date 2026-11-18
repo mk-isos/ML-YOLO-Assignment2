@@ -342,7 +342,7 @@ def main() -> None:
                 "subject": pdf_metadata.get("/Subject"),
             },
             "rendering": {
-                "renderer": pdftoppm,
+                "renderer": None if pdftoppm is None else Path(pdftoppm).name,
                 "returncode": None if render_result is None else render_result.returncode,
                 "rendered_pages": len(rendered_pages),
                 "minimum_png_bytes": min(rendered_page_sizes, default=0),

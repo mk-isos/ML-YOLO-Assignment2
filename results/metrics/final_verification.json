@@ -1,5 +1,5 @@
 {
-  "verified_at_utc": "2026-11-18T09:58:17.911984+00:00",
+  "verified_at_utc": "2026-11-18T10:36:28.292585+00:00",
   "core_passed": true,
   "all_passed_including_github": true,
   "checks": {
@@ -43,9 +43,34 @@
     "fine_tuning_executed": {
       "passed": true,
       "details": {
-        "completed_epochs": 16,
         "duration_seconds": 3752.549686791026,
-        "best_epoch": 8
+        "early_stopping": {
+          "configured_epochs": 30,
+          "patience": 8,
+          "completed_epochs": 16,
+          "best_epoch": 8,
+          "best_map50_95": 0.40616,
+          "epochs_since_best": 8
+        },
+        "selection_metric": "validation mAP@0.5:0.95 (Ultralytics detection fitness weight 1.0)",
+        "base_model": "yolov8n.pt"
+      }
+    },
+    "transfer_learning_audit": {
+      "passed": true,
+      "details": {
+        "ultralytics": "8.4.215",
+        "loader_method": "DetectionModel._remap_cls_by_names",
+        "target_state_dict_items": 355,
+        "matched_target_classes": [
+          "car"
+        ],
+        "conclusion": {
+          "car_output_rows_reused": true,
+          "pedestrian_output_row_reused_from_person": false,
+          "cyclist_output_row_reused_from_bicycle": false,
+          "important_note": "The aggregate 'Transferred 355/355 items' message alone does not prove class-row remapping; the implementation audit and direct tensor equality checks provide that evidence."
+        }
       }
     },
     "held_out_test_metrics": {
@@ -88,17 +113,91 @@
         ]
       }
     },
+    "pretrained_finetuned_comparison": {
+      "passed": true,
+      "details": {
+        "scope": "fixed-threshold per-class P/R/F1; not official mAP",
+        "mapping": {
+          "COCO car (id 2)": "KITTI car (id 0)",
+          "COCO person (id 0)": "KITTI pedestrian (id 1)",
+          "cyclist": "excluded: KITTI cyclist is a rider+bicycle object while COCO predicts person and bicycle separately"
+        },
+        "pretrained": {
+          "car": {
+            "tp": 2770,
+            "fp": 1275,
+            "fn": 1284,
+            "precision": 0.6847960444993819,
+            "recall": 0.6832757770103601,
+            "f1": 0.6840350660575379
+          },
+          "pedestrian": {
+            "tp": 393,
+            "fp": 626,
+            "fn": 604,
+            "precision": 0.3856722276741904,
+            "recall": 0.39418254764292876,
+            "f1": 0.3898809523809524
+          }
+        },
+        "fine_tuned": {
+          "car": {
+            "tp": 3196,
+            "fp": 745,
+            "fn": 858,
+            "precision": 0.8109616848515605,
+            "recall": 0.7883571780957079,
+            "f1": 0.7994996873045653
+          },
+          "pedestrian": {
+            "tp": 349,
+            "fp": 134,
+            "fn": 648,
+            "precision": 0.722567287784679,
+            "recall": 0.35005015045135407,
+            "f1": 0.4716216216216216
+          }
+        },
+        "limitations": [
+          "This is not an official mAP comparison; it is a fixed-confidence diagnostic.",
+          "COCO person and KITTI pedestrian annotations are similar but not identical.",
+          "KITTI excludes Van/Truck from the target car class, while a COCO model may emit car predictions on them.",
+          "Cyclist is intentionally excluded because the label and bounding-box semantics are incompatible.",
+          "The fine-tuned operating point was reused from the previously saved diagnostic to avoid redundant inference."
+        ]
+      }
+    },
     "tracking_video": {
       "passed": true,
       "details": {
         "duration_seconds": 5.0,
         "decoded_frames": 150,
+        "codec": "h264",
+        "model_sha256": "7228f60ae38af5ca3dd1ec88686003bdcb0571aa4f865821b6caaf73a0cb8264",
         "per_class_frame_count": {
           "car": 150,
           "pedestrian": 148,
           "cyclist": 138
         },
         "detections_with_track_id": 1244,
+        "continuity": {
+          "car": {
+            "unique_ids": 12,
+            "consecutive_frame_pairs": 485,
+            "all_observed_frame_pairs": 498
+          },
+          "pedestrian": {
+            "unique_ids": 9,
+            "consecutive_frame_pairs": 339,
+            "all_observed_frame_pairs": 366
+          },
+          "cyclist": {
+            "unique_ids": 16,
+            "consecutive_frame_pairs": 309,
+            "all_observed_frame_pairs": 343
+          }
+        },
+        "tracking_accuracy_limitation": "No ground-truth track IDs are available for this clip; IDF1, HOTA, identity-switch counts, and claims of stable or accurate tracking are not measured.",
         "sha256": "2e5d182c783537fcc32b30fe5bd72a9afbb27abb06a112bcee52d962bb67b5af"
       }
     },
@@ -109,8 +208,22 @@
     "pdf_report": {
       "passed": true,
       "details": {
-        "pages": 14,
-        "bytes": 3205869,
+        "filename": "머신러닝_과제2_2021041023_김문기.pdf",
+        "old_report_absent": true,
+        "pages": 16,
+        "bytes": 3274347,
+        "metadata": {
+          "title": "머신러닝 과제 2 - YOLOv8 Fine-tuning을 이용한 3개 부류 객체 탐지 및 추적",
+          "author": "김문기",
+          "subject": "충북대학교 머신러닝 과제 2"
+        },
+        "rendering": {
+          "renderer": "pdftoppm",
+          "returncode": 0,
+          "rendered_pages": 16,
+          "minimum_png_bytes": 55686,
+          "stderr_tail": ""
+        },
         "metric_tokens": [
           "0.5035",
           "0.2692",
@@ -137,8 +250,20 @@
             "expected": "16 Epoch",
             "present": true
           },
+          "configured_epochs": {
+            "expected": "최대 설정은 30 Epoch",
+            "present": true
+          },
+          "early_stopping_patience": {
+            "expected": "patience는 8",
+            "present": true
+          },
           "best_epoch": {
             "expected": "Epoch는 8",
+            "present": true
+          },
+          "transfer_remap": {
+            "expected": "Remapped 1/3",
             "present": true
           },
           "train_images": {
@@ -212,9 +337,80 @@
           "test_instances_per_image": {
             "expected": "4.948",
             "present": true
+          },
+          "pretrained_car_f1": {
+            "expected": "0.6840",
+            "present": true
+          },
+          "finetuned_car_f1": {
+            "expected": "0.7995",
+            "present": true
+          },
+          "pretrained_pedestrian_recall": {
+            "expected": "0.3942",
+            "present": true
+          },
+          "finetuned_pedestrian_recall": {
+            "expected": "0.3501",
+            "present": true
+          },
+          "tracking_continuity_car": {
+            "expected": "car 485/498",
+            "present": true
+          },
+          "final_report_name": {
+            "expected": "머신러닝_과제2_2021041023_김문기.pdf",
+            "present": true
           }
         },
-        "sha256": "b31448071981cce2d163f4c7ae78f539c22c7a78cf587f34bd844263b09a7519"
+        "sha256": "4a476b6a5dbfa9dc4530640583b95a00fa3d3d423d6e479279d57f937df46746"
+      }
+    },
+    "readme_consistency": {
+      "passed": true,
+      "details": {
+        "report_link": {
+          "expected": "reports/머신러닝_과제2_2021041023_김문기.pdf",
+          "present": true
+        },
+        "model_link": {
+          "expected": "models/best.pt",
+          "present": true
+        },
+        "video_link": {
+          "expected": "videos/kitti3_tracking_5s.mp4",
+          "present": true
+        },
+        "classes": {
+          "expected": "`car`, `pedestrian`, `cyclist`",
+          "present": true
+        },
+        "test_precision": {
+          "expected": "0.6612",
+          "present": true
+        },
+        "test_recall": {
+          "expected": "0.4535",
+          "present": true
+        },
+        "test_map50": {
+          "expected": "0.5035",
+          "present": true
+        },
+        "test_map50_95": {
+          "expected": "0.2692",
+          "present": true
+        },
+        "old_report_reference_absent": true
+      }
+    },
+    "repository_exclusions_and_secrets": {
+      "passed": true,
+      "details": {
+        "tracked_files": 66,
+        "forbidden_tracked": [],
+        "suspicious_names": [],
+        "secret_pattern_match_count": 0
       }
     },
     "github_public_access": {
@@ -231,7 +427,60 @@
           "readme_contains_url": true,
           "report_contains_url": true,
           "repository_reachable": true,
-          "repository_public": true
+          "repository_public": true,
+          "public_artifacts_match": true
+        },
+        "artifact_checks": {
+          "model": true,
+          "video": true,
+          "report": true,
+          "test_metrics": true,
+          "additional_analysis": true,
+          "confidence_plot": true
+        },
+        "artifacts": {
+          "model": {
+            "path": "models/best.pt",
+            "local_bytes": 6467370,
+            "remote_bytes": 6467370,
+            "download_url": "https://raw.githubusercontent.com/mk-isos/ML-YOLO-Assignment2/main/models/best.pt",
+            "error": ""
+          },
+          "video": {
+            "path": "videos/kitti3_tracking_5s.mp4",
+            "local_bytes": 4586271,
+            "remote_bytes": 4586271,
+            "download_url": "https://raw.githubusercontent.com/mk-isos/ML-YOLO-Assignment2/main/videos/kitti3_tracking_5s.mp4",
+            "error": ""
+          },
+          "report": {
+            "path": "reports/머신러닝_과제2_2021041023_김문기.pdf",
+            "local_bytes": 3274347,
+            "remote_bytes": 3274347,
+            "download_url": "https://raw.githubusercontent.com/mk-isos/ML-YOLO-Assignment2/main/reports/머신러닝_과제2_2021041023_김문기.pdf",
+            "error": ""
+          },
+          "test_metrics": {
+            "path": "results/metrics/test_metrics.json",
+            "local_bytes": 3611,
+            "remote_bytes": 3611,
+            "download_url": "https://raw.githubusercontent.com/mk-isos/ML-YOLO-Assignment2/main/results/metrics/test_metrics.json",
+            "error": ""
+          },
+          "additional_analysis": {
+            "path": "results/metrics/additional_analysis.json",
+            "local_bytes": 12367,
+            "remote_bytes": 12367,
+            "download_url": "https://raw.githubusercontent.com/mk-isos/ML-YOLO-Assignment2/main/results/metrics/additional_analysis.json",
+            "error": ""
+          },
+          "confidence_plot": {
+            "path": "results/plots/confidence_threshold_analysis.png",
+            "local_bytes": 153238,
+            "remote_bytes": 153238,
+            "download_url": "https://raw.githubusercontent.com/mk-isos/ML-YOLO-Assignment2/main/results/plots/confidence_threshold_analysis.png",
+            "error": ""
+          }
         },
         "gh_error": ""
       }
