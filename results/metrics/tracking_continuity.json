@@ -1,0 +1,140 @@
+{
+  "analyzed_at_utc": "2026-11-18T10:17:34.311981+00:00",
+  "source_csv": "results/metrics/tracking_detections.csv",
+  "video": "videos/kitti3_tracking_5s.mp4",
+  "model_sha256": "7228f60ae38af5ca3dd1ec88686003bdcb0571aa4f865821b6caaf73a0cb8264",
+  "detections": 1244,
+  "detections_with_id": 1244,
+  "per_class": {
+    "car": {
+      "unique_ids": 12,
+      "ids_seen_in_multiple_frames": 12,
+      "ids_seen_in_10plus_frames": 5,
+      "longest_detection_count": 127,
+      "longest_span_frames": 150,
+      "consecutive_frame_pairs": 485,
+      "all_observed_frame_pairs": 498,
+      "consecutive_pair_ratio": 0.9738955823293173,
+      "longest_tracks": [
+        {
+          "track_id": 16,
+          "detections": 127,
+          "first_frame": 7,
+          "last_frame": 149,
+          "span_frames": 143,
+          "consecutive_pairs": 123,
+          "all_frame_pairs": 126,
+          "max_gap": 14
+        },
+        {
+          "track_id": 4,
+          "detections": 124,
+          "first_frame": 0,
+          "last_frame": 149,
+          "span_frames": 150,
+          "consecutive_pairs": 120,
+          "all_frame_pairs": 123,
+          "max_gap": 17
+        },
+        {
+          "track_id": 8,
+          "detections": 85,
+          "first_frame": 0,
+          "last_frame": 99,
+          "span_frames": 100,
+          "consecutive_pairs": 79,
+          "all_frame_pairs": 84,
+          "max_gap": 12
+        }
+      ]
+    },
+    "pedestrian": {
+      "unique_ids": 9,
+      "ids_seen_in_multiple_frames": 9,
+      "ids_seen_in_10plus_frames": 9,
+      "longest_detection_count": 111,
+      "longest_span_frames": 125,
+      "consecutive_frame_pairs": 339,
+      "all_observed_frame_pairs": 366,
+      "consecutive_pair_ratio": 0.9262295081967213,
+      "longest_tracks": [
+        {
+          "track_id": 9,
+          "detections": 111,
+          "first_frame": 25,
+          "last_frame": 149,
+          "span_frames": 125,
+          "consecutive_pairs": 105,
+          "all_frame_pairs": 110,
+          "max_gap": 10
+        },
+        {
+          "track_id": 50,
+          "detections": 89,
+          "first_frame": 55,
+          "last_frame": 149,
+          "span_frames": 95,
+          "consecutive_pairs": 84,
+          "all_frame_pairs": 88,
+          "max_gap": 4
+        },
+        {
+          "track_id": 5,
+          "detections": 50,
+          "first_frame": 0,
+          "last_frame": 53,
+          "span_frames": 54,
+          "consecutive_pairs": 47,
+          "all_frame_pairs": 49,
+          "max_gap": 3
+        }
+      ]
+    },
+    "cyclist": {
+      "unique_ids": 16,
+      "ids_seen_in_multiple_frames": 15,
+      "ids_seen_in_10plus_frames": 8,
+      "longest_detection_count": 64,
+      "longest_span_frames": 121,
+      "consecutive_frame_pairs": 309,
+      "all_observed_frame_pairs": 343,
+      "consecutive_pair_ratio": 0.9008746355685131,
+      "longest_tracks": [
+        {
+          "track_id": 11,
+          "detections": 64,
+          "first_frame": 0,
+          "last_frame": 66,
+          "span_frames": 67,
+          "consecutive_pairs": 61,
+          "all_frame_pairs": 63,
+          "max_gap": 3
+        },
+        {
+          "track_id": 39,
+          "detections": 60,
+          "first_frame": 48,
+          "last_frame": 111,
+          "span_frames": 64,
+          "consecutive_pairs": 57,
+          "all_frame_pairs": 59,
+          "max_gap": 4
+        },
+        {
+          "track_id": 2,
+          "detections": 58,
+          "first_frame": 0,
+          "last_frame": 89,
+          "span_frames": 90,
+          "consecutive_pairs": 52,
+          "all_frame_pairs": 57,
+          "max_gap": 26
+        }
+      ]
+    }
+  },
+  "interpretation": {
+    "supported": "The same tracker IDs occur across adjacent frames, so the output is frame-to-frame tracking rather than independent per-frame detection only.",
+    "not_supported": "No ground-truth track IDs are available for this clip; IDF1, HOTA, identity-switch counts, and claims of stable or accurate tracking are not measured."
+  }
+}

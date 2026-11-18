@@ -1,10 +1,21 @@
-# YOLOv8 Fine-tuning — KITTI car / pedestrian / cyclist
+# 머신러닝 과제 2 - YOLOv8 Fine-tuning
 
-충북대학교 소프트웨어학부 머신러닝 과제 2를 위한 재현 가능한 객체 탐지·추적 프로젝트입니다. KITTI 라벨을 정확히 3개 클래스로 재매핑하고, COCO 사전학습 YOLOv8n을 Apple M1 Pro MPS에서 실제 fine-tuning한 뒤 독립 test 분할과 5초 ByteTrack 영상으로 검증합니다.
+충북대학교 소프트웨어학부 머신러닝 과제 2 프로젝트입니다. KITTI 라벨을 `car`, `pedestrian`, `cyclist` 세 클래스로 재매핑하고 COCO 사전학습 YOLOv8n을 Apple M1 Pro MPS에서 실제 fine-tuning했습니다. 학습에 사용하지 않은 Test 1,076장과 별도 연속 영상의 ByteTrack 결과로 검증했습니다.
 
-최대 30 Epoch로 설정했으며, 8 Epoch 동안 validation mAP 개선이 없어 16 Epoch에서 조기 종료되었습니다. 최적 validation 성능은 8 Epoch의 `best.pt`입니다.
+## 제출 핵심 정보
 
-## 실제 결과
+| 항목 | 내용 |
+|---|---|
+| 모델 / 클래스 | YOLOv8n / `car`, `pedestrian`, `cyclist` |
+| 학습 | 최대 30 Epoch, patience 8, 실제 16 Epoch, Best Epoch 8 |
+| 최종 PDF | [머신러닝_과제2_2021041023_김문기.pdf](reports/머신러닝_과제2_2021041023_김문기.pdf) |
+| 5초 추적 영상 | [kitti3_tracking_5s.mp4](videos/kitti3_tracking_5s.mp4) |
+| 학습 모델 | [best.pt](models/best.pt) |
+| 재현 방법 | [환경 설치부터 평가·보고서 생성까지](#설치-및-재현) |
+
+최대 30 Epoch는 상한 설정값입니다. Validation mAP@0.5:0.95가 가장 높았던 Epoch 8 이후 8회 연속 개선이 없어 patience 8 조건에 따라 Epoch 16 뒤 종료되었습니다. `best.pt`는 Epoch 8 기준이며 `last.pt`와 구별됩니다.
+
+## 주요 성능 지표
 
 | 평가 | Precision | Recall | mAP@0.5 | mAP@0.5:0.95 |
 |---|---:|---:|---:|---:|
@@ -21,8 +32,8 @@
 - 최종 모델: [`models/best.pt`](models/best.pt), SHA-256 `7228f60ae38af5ca3dd1ec88686003bdcb0571aa4f865821b6caaf73a0cb8264`
 - 5초 추적 영상: [`videos/kitti3_tracking_5s.mp4`](videos/kitti3_tracking_5s.mp4), 정확히 5.000초/150프레임/H.264
 - 추적 결과: 1,244개 검출 모두 track ID 포함, car/pedestrian/cyclist 모두 등장
-- 한국어 보고서: [`reports/final_report.pdf`](reports/final_report.pdf)
-- 상세 수치: [`results/metrics/test_metrics.json`](results/metrics/test_metrics.json), [`results/metrics/additional_analysis.json`](results/metrics/additional_analysis.json), [`results/metrics/final_verification.json`](results/metrics/final_verification.json)
+- 한국어 보고서: [`reports/머신러닝_과제2_2021041023_김문기.pdf`](reports/머신러닝_과제2_2021041023_김문기.pdf)
+- 상세 수치: [`results/metrics/test_metrics.json`](results/metrics/test_metrics.json), [`results/metrics/additional_analysis.json`](results/metrics/additional_analysis.json), [`results/metrics/pretrained_comparison.json`](results/metrics/pretrained_comparison.json), [`results/metrics/final_verification.json`](results/metrics/final_verification.json)
 
 ## 추가 진단 실험(재학습 없음)
 
@@ -40,6 +51,8 @@
 - conf 0.25에서 small/medium/large Recall은 pedestrian `0.0187/0.4051/0.7379`, cyclist `0.0204/0.1937/0.7273`이었습니다. 크기 구간은 원본 영상 좌표의 COCO식 진단 기준이며 KITTI 공식 지표가 아닙니다.
 - Validation/Test의 이미지당 개체 수는 `2.458/4.948`이었습니다. Validation pedestrian은 large 76.6%, small 0.0%였지만 Test는 large 14.5%, small 26.8%여서 보행자 분포 이동이 확인되었습니다.
 - cyclist는 Validation의 small 비율이 더 높았는데도 Test 성능이 낮아, 분할 차이를 객체 크기만으로 설명할 수 없었습니다. 조밀도·가림·장면 차이는 가능한 가설이지만 이번 실험에서 원인별 효과를 분리하지 않았습니다.
+
+동일 Test·conf 0.25에서 COCO 사전학습 모델과 제한 비교한 결과, car F1은 `0.6840 → 0.7995`, pedestrian F1은 `0.3899 → 0.4716`이었습니다. 다만 pedestrian Recall은 `0.3942 → 0.3501`로 낮아졌습니다. COCO person과 KITTI pedestrian의 정의가 완전히 같지 않고 KITTI cyclist는 rider+bicycle 통합 상자라 비교에서 제외했으므로, 이는 공식 mAP 비교가 아닌 고정 임계값 진단입니다.
 
 ![Confidence threshold analysis](results/plots/confidence_threshold_analysis.png)
 
@@ -113,9 +126,13 @@ PYTORCH_ENABLE_MPS_FALLBACK=1 YOLO_CONFIG_DIR=.cache/ultralytics \
 ```bash
 python src/finalize_training.py
 python src/evaluate.py
+python src/audit_transfer.py
+python src/compare_pretrained.py --device mps --confidence 0.25
 python src/analyze_diagnostics.py --device mps --batch 8
 python src/track_video.py
+python src/analyze_tracking.py
 python src/generate_report.py --author "김문기" --student-id "2021041023"
+python src/verify_project.py
 ```
 
 테스트:
@@ -139,7 +156,7 @@ tests/         클래스 재매핑과 평가 유틸리티 테스트
 videos/        5초 추적 MP4
 ```
 
-원본 데이터, 원본 영상, 강의 PDF, 가상환경, Ultralytics 임시 run은 Git에 포함하지 않습니다. `models/best.pt`, 선택된 결과 그림·지표, `videos/kitti3_tracking_5s.mp4`, `reports/final_report.pdf`만 제출 아티팩트로 관리합니다.
+원본 데이터, 원본 영상, 강의 PDF, 가상환경, Ultralytics 임시 run은 Git에 포함하지 않습니다. `models/best.pt`, 선택된 결과 그림·지표, `videos/kitti3_tracking_5s.mp4`, `reports/머신러닝_과제2_2021041023_김문기.pdf`만 제출 아티팩트로 관리합니다.
 
 ## 출처와 이용 조건
 

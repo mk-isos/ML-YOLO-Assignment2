@@ -1,0 +1,80 @@
+{
+  "evaluated_at_utc": "2026-11-18T10:15:38.453638+00:00",
+  "duration_seconds": 22.21441616700031,
+  "operation": "inference-only comparison; no training or weight update",
+  "environment": {
+    "ultralytics": "8.4.215",
+    "device": "mps"
+  },
+  "settings": {
+    "test_images": 1076,
+    "imgsz": 640,
+    "confidence": 0.25,
+    "nms_iou": 0.7,
+    "matching_iou": 0.5,
+    "metric_scope": "fixed-threshold per-class P/R/F1; not official mAP"
+  },
+  "mapping": {
+    "COCO car (id 2)": "KITTI car (id 0)",
+    "COCO person (id 0)": "KITTI pedestrian (id 1)",
+    "cyclist": "excluded: KITTI cyclist is a rider+bicycle object while COCO predicts person and bicycle separately"
+  },
+  "pretrained": {
+    "weight": "models/yolov8n.pt",
+    "sha256": "f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c47ccfc83b36",
+    "images": 1076,
+    "per_class": {
+      "car": {
+        "tp": 2770,
+        "fp": 1275,
+        "fn": 1284,
+        "precision": 0.6847960444993819,
+        "recall": 0.6832757770103601,
+        "f1": 0.6840350660575379
+      },
+      "pedestrian": {
+        "tp": 393,
+        "fp": 626,
+        "fn": 604,
+        "precision": 0.3856722276741904,
+        "recall": 0.39418254764292876,
+        "f1": 0.3898809523809524
+      }
+    }
+  },
+  "fine_tuned": {
+    "weight": "models/best.pt",
+    "sha256": "7228f60ae38af5ca3dd1ec88686003bdcb0571aa4f865821b6caaf73a0cb8264",
+    "images": 1076,
+    "per_class": {
+      "car": {
+        "tp": 3196,
+        "fp": 745,
+        "fn": 858,
+        "precision": 0.8109616848515605,
+        "recall": 0.7883571780957079,
+        "f1": 0.7994996873045653
+      },
+      "pedestrian": {
+        "tp": 349,
+        "fp": 134,
+        "fn": 648,
+        "precision": 0.722567287784679,
+        "recall": 0.35005015045135407,
+        "f1": 0.4716216216216216
+      }
+    }
+  },
+  "limitations": [
+    "This is not an official mAP comparison; it is a fixed-confidence diagnostic.",
+    "COCO person and KITTI pedestrian annotations are similar but not identical.",
+    "KITTI excludes Van/Truck from the target car class, while a COCO model may emit car predictions on them.",
+    "Cyclist is intentionally excluded because the label and bounding-box semantics are incompatible.",
+    "The fine-tuned operating point was reused from the previously saved diagnostic to avoid redundant inference."
+  ],
+  "artifact": "results/plots/pretrained_finetuned_comparison.png",
+  "weight_integrity": {
+    "pretrained_unchanged": true,
+    "fine_tuned_unchanged": true
+  }
+}

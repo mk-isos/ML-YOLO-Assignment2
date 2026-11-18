@@ -34,6 +34,7 @@ PLOTS_ROOT = PROJECT_ROOT / "results/plots"
 PREDICTIONS_ROOT = PROJECT_ROOT / "results/predictions"
 REPORTS_ROOT = PROJECT_ROOT / "reports"
 FONT_PATH = Path("/System/Library/Fonts/Supplemental/AppleGothic.ttf")
+FINAL_REPORT_NAME = "머신러닝_과제2_2021041023_김문기.pdf"
 
 
 def read_json(path: Path) -> dict[str, object]:
@@ -71,7 +72,7 @@ def main() -> None:
     parser.add_argument(
         "--github-url", default="https://github.com/mk-isos/ML-YOLO-Assignment2"
     )
-    parser.add_argument("--output", type=Path, default=REPORTS_ROOT / "final_report.pdf")
+    parser.add_argument("--output", type=Path, default=REPORTS_ROOT / FINAL_REPORT_NAME)
     args = parser.parse_args()
 
     if not FONT_PATH.exists():
@@ -85,6 +86,9 @@ def main() -> None:
     test = read_json(METRICS_ROOT / "test_metrics.json")
     tracking = read_json(METRICS_ROOT / "tracking_metadata.json")
     analysis = read_json(METRICS_ROOT / "additional_analysis.json")
+    transfer_audit = read_json(METRICS_ROOT / "transfer_audit.json")
+    pretrained_comparison = read_json(METRICS_ROOT / "pretrained_comparison.json")
+    tracking_continuity = read_json(METRICS_ROOT / "tracking_continuity.json")
 
     output = args.output.resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -134,8 +138,8 @@ def main() -> None:
         "KoreanBody",
         parent=styles["BodyText"],
         fontName="Korean",
-        fontSize=9.4,
-        leading=15.5,
+        fontSize=10.1,
+        leading=16.2,
         alignment=TA_JUSTIFY,
         wordWrap="CJK",
         spaceAfter=2.3 * mm,
@@ -143,8 +147,8 @@ def main() -> None:
     small = ParagraphStyle(
         "KoreanSmall",
         parent=body,
-        fontSize=8.2,
-        leading=12.5,
+        fontSize=8.7,
+        leading=13.0,
         textColor=colors.HexColor("#555555"),
     )
     caption = ParagraphStyle(
@@ -162,12 +166,24 @@ def main() -> None:
         bulletIndent=1 * mm,
         alignment=TA_LEFT,
     )
+    compact_bullet = ParagraphStyle(
+        "KoreanCompactBullet",
+        parent=small,
+        leftIndent=6 * mm,
+        firstLineIndent=-3 * mm,
+        bulletIndent=1 * mm,
+        alignment=TA_LEFT,
+        spaceAfter=1 * mm,
+    )
 
     def p(text: str, style: ParagraphStyle = body) -> Paragraph:
         return Paragraph(text, style)
 
     def bullets(items: list[str]) -> list[Paragraph]:
         return [Paragraph(f"• {item}", bullet) for item in items]
+
+    def compact_bullets(items: list[str]) -> list[Paragraph]:
+        return [Paragraph(f"• {item}", compact_bullet) for item in items]
 
     def table(rows: list[list[object]], widths: list[float] | None = None) -> Table:
         converted = [
@@ -227,13 +243,27 @@ def main() -> None:
             "강의자료의 과제 원문은 ‘YOLO 모델을 3개 부류 데이터에 대해서 fine-tuning’하는 것이다. "
             "세부 제출 조건은 3개 부류의 100개 이상 이미지 수집, 학습, 탐지 및 추적, 약 5초 결과 영상, "
             "공개 GitHub의 모델·영상, 그리고 학습 과정·성능·경험을 포함한 결과보고서이다 "
-            "(computer-vision-4.pdf, 49–51쪽). 본 프로젝트는 단순 COCO 추론이 아니라, KITTI 라벨을 "
+            "(computer-vision-4.pdf, 49쪽). 50–51쪽은 라벨링 도구와 Ultralytics 실습 참고 링크이다. "
+            "본 프로젝트는 단순 COCO 추론이 아니라, KITTI 라벨을 "
             "3개 부류로 재매핑하고 YOLOv8n의 사전학습 가중치에서 실제 추가 학습을 수행했다."
         ),
         p(
             "강의자료는 객체 탐지의 bounding box, IoU, NMS, YOLO 구조, 전이학습 및 precision/recall/mAP를 "
             "설명한다. 데이터 누수 방지용 장면 그룹화, SHA-256 검증, ByteTrack 사용, Apple MPS의 결정론 한계는 "
             "과제 명세를 충족하기 위해 추가 적용한 일반적인 머신러닝 엔지니어링 절차이다."
+        ),
+        p("강의자료 직접 요구사항과 충족 근거", h2),
+        table(
+            [
+                ["49쪽 직접 요구사항", "실제 충족 근거"],
+                ["3개 부류, 100개 이상 이미지", "car/pedestrian/cyclist; train 클래스별 이미지 4,908/1,076/794장"],
+                ["3개 부류 모델 학습", "COCO 사전학습 YOLOv8n을 KITTI 3부류로 16 Epoch fine-tuning"],
+                ["학습 부류 탐지 및 추적", "best.pt와 ByteTrack으로 세 클래스 검출·프레임 간 ID 추적"],
+                ["약 5초 결과 동영상", "H.264 MP4 5.000초·150프레임·전체 디코딩 확인"],
+                ["개인 GitHub에 모델·영상 공개", "mk-isos/ML-YOLO-Assignment2의 models/와 videos/"],
+                ["과정·성능·링크·경험 보고", "본 보고서 3–13장과 독립 Test·추가 진단 결과"],
+            ],
+            [60 * mm, 108 * mm],
         ),
         p("최종 검증 목표", h2),
         *bullets(
@@ -283,7 +313,7 @@ def main() -> None:
         ),
     ]
 
-    story += [PageBreak(), p("3. 모델과 Fine-tuning 방법", h1)]
+    story += [p("3. 모델과 Fine-tuning 방법", h1)]
     story += [
         p(
             "강의자료의 YOLOv8 실습 흐름과 Ultralytics의 안정적인 학습·평가·추적 API를 고려해 YOLOv8n을 선택했다. "
@@ -293,9 +323,16 @@ def main() -> None:
         ),
         p(
             "COCO 사전학습 가중치 yolov8n.pt를 불러온 뒤 출력 클래스를 80개에서 3개로 바꾸었다. "
-            "로그의 ‘Transferred 355/355 items’는 backbone과 검출기의 호환 가중치가 전달되었음을 뜻하며, "
-            "새 3부류 데이터로 역전파와 optimizer 갱신을 수행했으므로 기존 클래스 필터링과 구별되는 실제 fine-tuning이다. "
-            "이름이 일치하는 car의 분류 head 1개 행은 재사용되었고, pedestrian/cyclist 분류 행은 새로 학습되었다."
+            "설치된 Ultralytics 8.4.215의 DetectionTrainer는 대상 클래스 이름을 가중치 로드 전에 설정하고, "
+            "DetectionModel._remap_cls_by_names가 이름이 정확히 일치하는 분류 출력 행을 옮긴다. 같은 버전과 원본 "
+            "체크포인트로 로드만 재구성한 감사에서 ‘Remapped 1/3’과 세 탐지 스케일의 COCO car 행/바이어스가 "
+            "KITTI car 행과 동일함을 확인했다. pedestrian과 cyclist는 COCO person/bicycle 행과 동일하지 않았다. "
+            "따라서 ‘Transferred 355/355’ 문구 하나가 아니라 구현 감사와 텐서 비교를 근거로 car 출력 행 재사용을 판단했다."
+        ),
+        p(
+            "그 후 3부류 데이터에서 box/class/DFL 손실을 계산하고 역전파와 AdamW 갱신을 실제 수행했다. "
+            "16개 Epoch의 손실·검증 로그와 학습 전후 가중치 SHA-256이 서로 다르므로 기존 COCO 예측을 필터링한 것이 아니라 "
+            "실제 fine-tuning이다. 전이 감사 과정은 저장된 best.pt를 수정하지 않았다."
         ),
         p("평가 정의", h2),
         *bullets(
@@ -317,7 +354,7 @@ def main() -> None:
         ["Ultralytics", environment["ultralytics"]],
         ["가속기", f"MPS built={environment['mps_built']}, available={environment['mps_available']}"],
         ["모델 / 입력", "YOLOv8n / 640×640"],
-        ["Epoch / batch", f"{training['completed_epochs']} / 8"],
+        ["Epoch(최대 / 실제) / batch", f"{training['configured_epochs']} / {training['completed_epochs']} / 8"],
         ["Optimizer", "AdamW, lr0=0.001, lrf=0.01, weight_decay=0.0005"],
         ["증강", "mosaic=1.0, HSV, horizontal flip=0.5, scale/translate; 마지막 10 Epoch mosaic 종료"],
         ["재현 설정", "seed=42, deterministic=True, patience=8"],
@@ -338,14 +375,17 @@ def main() -> None:
         ),
     ]
 
-    story += [PageBreak(), p("5. 학습 과정과 검증 성능", h1)]
+    story += [p("5. 학습 과정과 검증 성능", h1)]
     story += [
         p(
             f"전체 학습은 {training['completed_epochs']} Epoch를 완료했고 실제 소요 시간은 "
             f"{format_duration(float(training['duration_seconds']))}였다. 검증 mAP@0.5:0.95가 가장 높은 Epoch는 "
             f"{training['best_epoch']}였으며, 그 시점의 검증 Precision={training['best_validation']['precision']:.4f}, "
             f"Recall={training['best_validation']['recall']:.4f}, mAP@0.5={training['best_validation']['map50']:.4f}, "
-            f"mAP@0.5:0.95={training['best_validation']['map50_95']:.4f}였다."
+            f"mAP@0.5:0.95={training['best_validation']['map50_95']:.4f}였다. 최대 설정은 "
+            f"{training['configured_epochs']} Epoch, patience는 8이었다. Ultralytics 8.4.215의 detection fitness는 "
+            "Precision/Recall/mAP@0.5가 아니라 mAP@0.5:0.95에 가중치 1.0을 두므로 이 지표로 best.pt를 선택한다. "
+            "Epoch 9-16에서 Epoch 8의 0.40616을 넘지 못해 연속 8회 개선 없음 조건을 만족했고 Epoch 16 뒤 조기 종료되었다."
         )
     ]
     training_curve = PLOTS_ROOT / "training_curves.png"
@@ -362,7 +402,8 @@ def main() -> None:
             [40 * mm, 40 * mm, 40 * mm, 40 * mm],
         ),
         p(
-            "최적 모델은 validation mAP@0.5:0.95 기준 best.pt이며, 이후 test 평가는 이 파일을 한 번만 사용했다. "
+            "따라서 30은 허용한 최대 Epoch이고 16은 실제 완료 횟수이다. 최적 모델은 Epoch 8의 validation "
+            "mAP@0.5:0.95 기준 best.pt이며, Epoch 16의 last.pt와 구별된다. 이후 test 평가는 best.pt만 사용했고 "
             "test 분할은 모델 선택과 조기 종료 판단에 사용하지 않았다."
         ),
     ]
@@ -417,7 +458,7 @@ def main() -> None:
     story += [PageBreak(), p("7. 추가 진단 실험", h1)]
     story += [
         p(
-            "추가 모델 학습 없이 기존 best.pt의 예측만 분석했다. Test에서 confidence 0.001 이상 예측을 한 번 생성하고 "
+            "추가 모델 학습 없이 사전학습 모델과 기존 best.pt의 추론 결과만 분석했다. Test에서 confidence 0.001 이상 예측을 한 번 생성하고 "
             "동일한 NMS 결과를 0.05, 0.10, 0.25, 0.50, 0.75로 필터링했다. 클래스가 같은 예측과 정답을 IoU 0.5에서 "
             "confidence 내림차순으로 일대일 매칭했다. 따라서 아래 값은 고정 threshold의 micro 지표이며, 클래스별 PR 곡선을 "
             "적분하는 공식 mAP와 구별된다. 평가 후 가중치 SHA-256이 학습 완료 시점과 같아 모델이 변경되지 않았음을 확인했다."
@@ -427,7 +468,43 @@ def main() -> None:
             f"{analysis['model_sha256']}이다.",
             small,
         ),
-        p("7.1 Confidence threshold에 따른 Precision/Recall", h2),
+        p("7.1 Fine-tuning 전후의 제한적 비교", h2),
+    ]
+    pre = pretrained_comparison["pretrained"]["per_class"]
+    post = pretrained_comparison["fine_tuned"]["per_class"]
+    baseline_rows = [["클래스 / 모델", "Precision", "Recall", "F1"]]
+    for class_name in ("car", "pedestrian"):
+        baseline_rows.extend(
+            [
+                [f"{class_name} / COCO", f"{pre[class_name]['precision']:.4f}", f"{pre[class_name]['recall']:.4f}", f"{pre[class_name]['f1']:.4f}"],
+                [f"{class_name} / Fine-tuned", f"{post[class_name]['precision']:.4f}", f"{post[class_name]['recall']:.4f}", f"{post[class_name]['f1']:.4f}"],
+            ]
+        )
+    story += [
+        p(
+            "COCO와 KITTI의 라벨 의미가 완전히 같지 않으므로 공식 mAP를 직접 비교하지 않았다. 동일한 1,076장 Test와 "
+            "imgsz 640, conf 0.25, NMS IoU 0.7, 정답 매칭 IoU 0.5에서 COCO car(id 2)를 KITTI car로, "
+            "COCO person(id 0)을 KITTI pedestrian으로 제한 매핑해 고정 임계값 P/R/F1만 비교했다. KITTI cyclist는 "
+            "탑승자와 자전거를 하나의 상자로 표시하지만 COCO는 person/bicycle을 분리하므로 비교에서 제외했다."
+        ),
+        table(baseline_rows, [58 * mm, 36 * mm, 36 * mm, 36 * mm]),
+    ]
+    baseline_plot = PROJECT_ROOT / pretrained_comparison["artifact"]
+    if baseline_plot.exists():
+        story += [
+            scaled_image(baseline_plot, max_height=70 * mm),
+            p("그림 4. 동일 Test·고정 임계값에서 COCO 사전학습 모델과 fine-tuned 모델의 제한적 비교", caption),
+        ]
+    story += [
+        p(
+            f"car는 F1 {pre['car']['f1']:.4f}에서 {post['car']['f1']:.4f}로 향상되었다. pedestrian은 "
+            f"Precision이 {pre['pedestrian']['precision']:.4f}에서 {post['pedestrian']['precision']:.4f}로 높아졌지만 "
+            f"Recall은 {pre['pedestrian']['recall']:.4f}에서 {post['pedestrian']['recall']:.4f}로 낮아졌고, F1은 "
+            f"{pre['pedestrian']['f1']:.4f}에서 {post['pedestrian']['f1']:.4f}로 상승했다. 이는 제한 매핑·단일 confidence의 "
+            "진단 결과이지 COCO 대비 공식 일반화 성능 향상을 증명하지 않는다. 특히 COCO person과 KITTI pedestrian의 "
+            "포함 범위, KITTI에서 제외한 Van/Truck 때문에 두 모델의 오검출 의미도 완전히 같지 않다."
+        ),
+        p("7.2 Confidence threshold에 따른 Precision/Recall", h2),
     ]
     threshold_rows = [["Conf.", "Micro P", "Micro R", "Micro F1", "car R", "ped. R", "cyclist R"]]
     for result in analysis["confidence_thresholds"]:
@@ -447,7 +524,7 @@ def main() -> None:
     if threshold_plot.exists():
         story += [
             scaled_image(threshold_plot, max_height=72 * mm),
-            p("그림 4. Confidence threshold 변화에 따른 Test micro 지표와 클래스별 Recall", caption),
+            p("그림 5. Confidence threshold 변화에 따른 Test micro 지표와 클래스별 Recall", caption),
         ]
     sampled_best = max(analysis["confidence_thresholds"], key=lambda result: result["micro"]["f1"])
     low_threshold = analysis["confidence_thresholds"][0]
@@ -472,13 +549,13 @@ def main() -> None:
         story += [
             scaled_image(comparison_image, max_height=126 * mm),
             p(
-                f"그림 5. 동일 Test 이미지 {comparison['image']}의 threshold 비교 - {panel_text}. "
+                f"그림 6. 동일 Test 이미지 {comparison['image']}의 threshold 비교 - {panel_text}. "
                 "빨간 상자는 놓친 정답이다.",
                 caption,
             ),
         ]
 
-    story += [PageBreak(), p("7.2 객체 크기별 Recall", h2)]
+    story += [PageBreak(), p("7.3 객체 크기별 Recall", h2)]
     story += [
         p(
             "원본 KITTI 영상 좌표에서 bounding box 면적을 small(<32^2), medium(32^2 이상 96^2 미만), "
@@ -503,7 +580,7 @@ def main() -> None:
     if size_plot.exists():
         story += [
             scaled_image(size_plot, max_height=83 * mm),
-            p("그림 6. Test ground-truth 객체 크기별 Recall(conf 0.25, IoU 0.5)", caption),
+            p("그림 7. Test ground-truth 객체 크기별 Recall(conf 0.25, IoU 0.5)", caption),
         ]
     pedestrian_sizes = analysis["size_recall"]["per_class"]["pedestrian"]
     cyclist_sizes = analysis["size_recall"]["per_class"]["cyclist"]
@@ -518,7 +595,7 @@ def main() -> None:
         )
     ]
 
-    story += [PageBreak(), p("7.3 Validation-Test 성능 차이", h2)]
+    story += [PageBreak(), p("7.4 Validation-Test 성능 차이", h2)]
     validation = analysis["validation_recheck"]
     split_rows = [["클래스", "Val R", "Test R", "Val mAP50-95", "Test mAP50-95"]]
     split_rows.append(
@@ -614,6 +691,7 @@ def main() -> None:
     verification = tracking["verification"]
     per_frame = tracking["per_class_frame_count"]
     unique_ids = tracking["per_class_unique_track_ids"]
+    continuity = tracking_continuity["per_class"]
     duration = float(tracking["ffprobe"]["format"]["duration"])
     story += [
         p(
@@ -636,6 +714,7 @@ def main() -> None:
                 ["탐지 / ID 포함 탐지", f"{tracking['detections']} / {tracking['detections_with_track_id']}"],
                 ["클래스별 검출 프레임", ", ".join(f"{name} {per_frame[name]}" for name in ("car", "pedestrian", "cyclist"))],
                 ["클래스별 고유 ID 수", ", ".join(f"{name} {len(unique_ids[name])}" for name in ("car", "pedestrian", "cyclist"))],
+                ["인접 프레임 ID 쌍", ", ".join(f"{name} {continuity[name]['consecutive_frame_pairs']}/{continuity[name]['all_observed_frame_pairs']}" for name in ("car", "pedestrian", "cyclist"))],
                 ["검증", f"duration={verification['duration_valid']}, decode={verification['decode_valid']}, IDs={verification['tracking_ids_present']}"],
             ],
             [47 * mm, 121 * mm],
@@ -643,7 +722,15 @@ def main() -> None:
     ]
     tracking_frame = PROJECT_ROOT / tracking["representative_frame"]
     if tracking_frame.exists():
-        story += [scaled_image(tracking_frame, max_height=95 * mm), p("그림 7. 학습 모델과 ByteTrack의 5초 영상 중 대표 프레임", caption)]
+        story += [scaled_image(tracking_frame, max_height=95 * mm), p("그림 8. 학습 모델과 ByteTrack의 5초 영상 중 대표 프레임", caption)]
+    story += [
+        p(
+            "CSV에서 동일 ID가 인접 프레임에 반복되는 쌍은 car 485/498, pedestrian 339/366, cyclist 309/343이었다. "
+            "따라서 결과는 프레임별 독립 탐지만이 아니라 실제 ID 기반 추적을 포함한다. 그러나 모든 1,244개 검출에 ID가 "
+            "있다는 사실은 ID가 항상 올바르게 유지되었다는 뜻이 아니다. 이 Pexels 영상에는 ground-truth track ID가 없으므로 "
+            "IDF1, HOTA, identity switch 수를 측정하지 않았으며 ‘안정적인 추적 성능’을 정량적으로 주장하지 않는다."
+        )
+    ]
 
     story += [p("10. 수행 중 문제와 해결", h1)]
     story += bullets(
@@ -655,6 +742,7 @@ def main() -> None:
             "추적 입력: 탐지용 KITTI 정지 프레임을 이어 붙이지 않고 별도의 실제 연속 영상과 이용 조건을 확보했다.",
             "아티팩트 일치: 보고서 생성기가 JSON·CSV·그림을 직접 읽게 하여 수치 전사 오류를 줄였다.",
             "분할 성능 차이: 재학습 없이 confidence·크기·분할 분포를 측정해 확인된 연관성과 미검증 가설을 구분했다.",
+            "전이학습 설명: 집계형 Transferred 문구에만 의존하지 않고 같은 버전 로더와 출력 텐서를 감사해 클래스별 재사용 범위를 확인했다.",
         ]
     )
     story += [p("11. 한계와 개선 방향", h1)]
@@ -664,6 +752,7 @@ def main() -> None:
             "MPS 일부 연산의 비결정론 때문에 동일 설정 재실행 시 마지막 자리 수가 달라질 수 있다.",
             "YOLOv8n 단일 모델·단일 seed만 사용했다. YOLOv8s, 입력 960, class-balanced sampling의 통제 실험을 추가하면 선택 근거가 강해진다.",
             "객체 크기 분석은 고정 conf 0.25의 Recall 진단이다. 크기별 AP나 가림 수준별 성능을 측정한 것으로 해석하면 안 된다.",
+            "COCO 사전학습 대비 비교는 car/person의 제한 매핑과 conf 0.25에서만 유효하며 공식 mAP 비교가 아니다. cyclist는 라벨 의미가 달라 제외했다.",
             "추적 영상은 5초의 한 장면이므로 다양한 날씨·가림·카메라 이동에 대한 tracker 안정성을 대표하지 않는다.",
             "Pexels 영상의 도메인은 KITTI와 달라 실제 도메인 이동 성능을 보여 주지만, 해당 영상의 정답 라벨이 없어 추적 정확도를 수치화하지 않았다.",
         ]
@@ -680,13 +769,14 @@ def main() -> None:
         p(
             "이 과제를 통해 높은 전체 지표만 제시하는 것보다 클래스 불균형, 데이터 누수, 평가 분할의 독립성, "
             "실제 장치 제약과 실패 사례를 함께 기록해야 결과를 신뢰할 수 있음을 경험했다. 추가 진단에서 threshold는 FP/FN의 "
-            "교환을 만들 뿐 성능을 일방적으로 개선하지 않았고, small pedestrian/cyclist Recall이 약 2%임을 확인했다. 또한 "
+            "교환을 만들 뿐 성능을 일방적으로 개선하지 않았고, small pedestrian/cyclist Recall이 약 2%임을 확인했다. "
+            "제한적 학습 전후 비교에서는 car와 pedestrian F1이 상승했으나 pedestrian Recall은 낮아져 모든 지표가 일괄 개선된 것은 아니었다. 또한 "
             "Validation-Test 차이에는 보행자 크기 분포 이동과 Test 장면 밀도가 연관되어 있었지만 cyclist 차이는 크기만으로 "
             "설명되지 않았다. 다음 단계에서는 cyclist 보강, 입력 해상도와 모델 크기를 분리한 통제 실험을 수행하겠다."
         ),
     ]
 
-    story += [PageBreak(), p("13. GitHub 및 참고자료", h1)]
+    story += [p("13. GitHub 및 참고자료", h1)]
     story += [
         table(
             [
@@ -696,13 +786,16 @@ def main() -> None:
                 ["5초 영상", tracking["output"]],
                 ["테스트 지표", "results/metrics/test_metrics.json"],
                 ["추가 진단", "results/metrics/additional_analysis.json"],
+                ["학습 전후 비교", "results/metrics/pretrained_comparison.json"],
+                ["전이 감사", "results/metrics/transfer_audit.json"],
+                ["추적 연속성", "results/metrics/tracking_continuity.json"],
                 ["보고서", str(output.relative_to(PROJECT_ROOT))],
             ],
             [43 * mm, 125 * mm],
         ),
         Spacer(1, 5 * mm),
         p("강의자료", h2),
-        *bullets(
+        *compact_bullets(
             [
                 "이건명, computer-vision-1.pdf — 컴퓨터비전 개론.",
                 "이건명, computer-vision-2.pdf — 특징 추출과 전통적 컴퓨터비전.",
@@ -711,7 +804,7 @@ def main() -> None:
             ]
         ),
         p("외부 자료 및 데이터", h2),
-        *bullets(
+        *compact_bullets(
             [
                 "KITTI Vision Benchmark Suite: https://www.cvlibs.net/datasets/kitti/ (academic use only 안내).",
                 "Ultralytics KITTI YAML/변환본: https://github.com/ultralytics/ultralytics/blob/main/ultralytics/cfg/datasets/kitti.yaml",
@@ -736,7 +829,7 @@ def main() -> None:
         leftMargin=18 * mm,
         topMargin=18 * mm,
         bottomMargin=20 * mm,
-        title="YOLOv8 Fine-tuning을 이용한 3개 부류 객체 탐지 및 추적",
+        title="머신러닝 과제 2 - YOLOv8 Fine-tuning을 이용한 3개 부류 객체 탐지 및 추적",
         author=args.author,
         subject="충북대학교 머신러닝 과제 2",
     )
