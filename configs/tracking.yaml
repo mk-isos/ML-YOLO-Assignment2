@@ -1,0 +1,20 @@
+source:
+  file: data/raw/tracking_source_pexels_4772894.mp4
+  page_url: https://www.pexels.com/video/video-of-cityscape-during-daytime-4772894/
+  direct_file_url: https://videos.pexels.com/video-files/4772894/4772894-hd_1920_1080_30fps.mp4
+  creator: German Korb
+  title: Video Of Cityscape During Daytime
+  license_name: Pexels License
+  license_url: https://www.pexels.com/license/
+  source_duration_seconds: 116.381667
+  source_fps: 29.97002997
+  source_resolution: [1920, 1080]
+clip:
+  start_seconds: 0.0
+  duration_seconds: 5.0
+  output_fps: 30
+tracking:
+  tracker: bytetrack.yaml
+  confidence: 0.25
+  iou: 0.7
+  image_size: 640

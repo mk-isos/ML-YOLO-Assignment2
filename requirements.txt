@@ -1,0 +1,11 @@
+imagehash==4.3.2
+iterative-stratification==0.1.9
+lap==0.5.14
+pdfplumber==0.11.10
+pypdf==7.1.0
+pytest==9.2.0
+PyYAML==6.0.3
+reportlab==5.1.0
+torch==2.15.0
+torchvision==0.29.2
+ultralytics==8.4.215

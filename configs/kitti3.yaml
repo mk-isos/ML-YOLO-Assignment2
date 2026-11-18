@@ -1,0 +1,9 @@
+# The training wrapper resolves this path to an absolute path at runtime.
+path: data/processed/kitti3
+train: images/train
+val: images/val
+test: images/test
+names:
+  0: car
+  1: pedestrian
+  2: cyclist

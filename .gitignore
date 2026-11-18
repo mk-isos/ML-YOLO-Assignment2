@@ -1,0 +1,28 @@
+.DS_Store
+.venv/
+.cache/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Downloaded and generated datasets are reproducible but are not redistributed.
+data/raw/
+data/processed/
+data/cache/
+
+# Course slides are provided for local study and must not be redistributed.
+references/
+
+# Downloadable pretrained base weight; the fine-tuned models/best.pt is kept.
+models/yolov8n.pt
+
+# Ultralytics transient caches and run directories.
+*.cache
+runs/
+
+# Large or generated artifacts are selectively force-added at finalization.
+results/runs/
+results/runtime/
+
+notebooks/.ipynb_checkpoints/
+reports/rendered/
