@@ -66,10 +66,10 @@ def page_footer(canvas: object, document: object) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--author", default="미기재")
-    parser.add_argument("--student-id", default="미기재")
+    parser.add_argument("--author", default="김문기")
+    parser.add_argument("--student-id", default="2021041023")
     parser.add_argument(
-        "--github-url", default="공개 전 — 사용자 승인 후 저장소 생성 및 공개 푸시 예정"
+        "--github-url", default="https://github.com/mk-isos/ML-YOLO-Assignment2"
     )
     parser.add_argument("--output", type=Path, default=REPORTS_ROOT / "final_report.pdf")
     args = parser.parse_args()
@@ -84,6 +84,7 @@ def main() -> None:
     training = read_json(METRICS_ROOT / "training_summary.json")
     test = read_json(METRICS_ROOT / "test_metrics.json")
     tracking = read_json(METRICS_ROOT / "tracking_metadata.json")
+    analysis = read_json(METRICS_ROOT / "additional_analysis.json")
 
     output = args.output.resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -212,7 +213,7 @@ def main() -> None:
             ),
             Spacer(1, 35 * mm),
             p(
-                "본 보고서의 수치와 그림은 저장된 학습 로그, 별도 테스트 분할 평가, "
+                "본 보고서의 수치와 그림은 저장된 학습 로그, 별도 테스트 분할 평가, 추가 진단 실험, "
                 "추적 CSV 및 ffprobe 검증 결과에서 자동으로 불러왔다.",
                 subtitle,
             ),
@@ -413,7 +414,172 @@ def main() -> None:
     if pr_curve.exists():
         story += [scaled_image(pr_curve, max_height=95 * mm), p("그림 3. Test 클래스별 Precision–Recall 곡선", caption)]
 
-    story += [PageBreak(), p("7. 성공·실패 사례 분석", h1)]
+    story += [PageBreak(), p("7. 추가 진단 실험", h1)]
+    story += [
+        p(
+            "추가 모델 학습 없이 기존 best.pt의 예측만 분석했다. Test에서 confidence 0.001 이상 예측을 한 번 생성하고 "
+            "동일한 NMS 결과를 0.05, 0.10, 0.25, 0.50, 0.75로 필터링했다. 클래스가 같은 예측과 정답을 IoU 0.5에서 "
+            "confidence 내림차순으로 일대일 매칭했다. 따라서 아래 값은 고정 threshold의 micro 지표이며, 클래스별 PR 곡선을 "
+            "적분하는 공식 mAP와 구별된다. 평가 후 가중치 SHA-256이 학습 완료 시점과 같아 모델이 변경되지 않았음을 확인했다."
+        ),
+        p(
+            f"추가 평가 시간은 {analysis['duration_seconds']:.1f}초였고, 가중치 SHA-256은 "
+            f"{analysis['model_sha256']}이다.",
+            small,
+        ),
+        p("7.1 Confidence threshold에 따른 Precision/Recall", h2),
+    ]
+    threshold_rows = [["Conf.", "Micro P", "Micro R", "Micro F1", "car R", "ped. R", "cyclist R"]]
+    for result in analysis["confidence_thresholds"]:
+        threshold_rows.append(
+            [
+                f"{result['threshold']:.2f}",
+                f"{result['micro']['precision']:.4f}",
+                f"{result['micro']['recall']:.4f}",
+                f"{result['micro']['f1']:.4f}",
+                f"{result['per_class']['car']['recall']:.4f}",
+                f"{result['per_class']['pedestrian']['recall']:.4f}",
+                f"{result['per_class']['cyclist']['recall']:.4f}",
+            ]
+        )
+    story += [table(threshold_rows, [18 * mm, 24 * mm, 24 * mm, 24 * mm, 24 * mm, 25 * mm, 27 * mm])]
+    threshold_plot = PROJECT_ROOT / analysis["artifacts"]["confidence_plot"]
+    if threshold_plot.exists():
+        story += [
+            scaled_image(threshold_plot, max_height=72 * mm),
+            p("그림 4. Confidence threshold 변화에 따른 Test micro 지표와 클래스별 Recall", caption),
+        ]
+    sampled_best = max(analysis["confidence_thresholds"], key=lambda result: result["micro"]["f1"])
+    low_threshold = analysis["confidence_thresholds"][0]
+    high_threshold = analysis["confidence_thresholds"][-1]
+    story += [
+        p(
+            f"표본 threshold 중 conf {sampled_best['threshold']:.2f}에서 micro F1={sampled_best['micro']['f1']:.4f}로 가장 높았다. "
+            f"conf {low_threshold['threshold']:.2f}에서는 Recall={low_threshold['micro']['recall']:.4f}까지 올라가지만 "
+            f"Precision={low_threshold['micro']['precision']:.4f}로 낮아졌다. 반대로 conf {high_threshold['threshold']:.2f}에서는 "
+            f"Precision={high_threshold['micro']['precision']:.4f}이지만 Recall={high_threshold['micro']['recall']:.4f}에 그쳤다. "
+            "즉 threshold 변경은 모델 성능 자체의 개선이 아니라 FP와 FN의 운영상 교환이며, 안전 중심 탐지라면 낮은 threshold, "
+            "오경보 비용이 큰 경우라면 높은 threshold를 선택해야 한다."
+        )
+    ]
+    comparison = analysis["confidence_comparison"]
+    comparison_image = PROJECT_ROOT / comparison["output"]
+    if comparison_image.exists():
+        panel_text = ", ".join(
+            f"conf {item['threshold']:.2f}: TP {item['tp']}, FP {item['fp']}, FN {item['fn']}"
+            for item in comparison["panels"]
+        )
+        story += [
+            scaled_image(comparison_image, max_height=126 * mm),
+            p(
+                f"그림 5. 동일 Test 이미지 {comparison['image']}의 threshold 비교 - {panel_text}. "
+                "빨간 상자는 놓친 정답이다.",
+                caption,
+            ),
+        ]
+
+    story += [PageBreak(), p("7.2 객체 크기별 Recall", h2)]
+    story += [
+        p(
+            "원본 KITTI 영상 좌표에서 bounding box 면적을 small(<32^2), medium(32^2 이상 96^2 미만), "
+            "large(96^2 이상) 픽셀로 구분했다. 이는 COCO식 진단 구간을 빌린 것이며 KITTI 공식 평가 지표가 아니다. "
+            "conf 0.25, IoU 0.5에서 각 크기의 ground truth가 검출된 비율을 계산했다. FP에 정답 크기를 부여하는 것은 "
+            "모호하므로 크기별 Precision이나 AP를 임의로 만들지 않았다."
+        )
+    ]
+    size_rows = [["클래스", "Small n / R", "Medium n / R", "Large n / R"]]
+    for class_name in ("car", "pedestrian", "cyclist"):
+        values = analysis["size_recall"]["per_class"][class_name]
+        size_rows.append(
+            [
+                class_name,
+                f"{values['small']['ground_truth']} / {values['small']['recall']:.4f}",
+                f"{values['medium']['ground_truth']} / {values['medium']['recall']:.4f}",
+                f"{values['large']['ground_truth']} / {values['large']['recall']:.4f}",
+            ]
+        )
+    story += [table(size_rows, [36 * mm, 44 * mm, 44 * mm, 44 * mm])]
+    size_plot = PROJECT_ROOT / analysis["artifacts"]["size_plot"]
+    if size_plot.exists():
+        story += [
+            scaled_image(size_plot, max_height=83 * mm),
+            p("그림 6. Test ground-truth 객체 크기별 Recall(conf 0.25, IoU 0.5)", caption),
+        ]
+    pedestrian_sizes = analysis["size_recall"]["per_class"]["pedestrian"]
+    cyclist_sizes = analysis["size_recall"]["per_class"]["cyclist"]
+    story += [
+        p(
+            f"pedestrian Recall은 small {pedestrian_sizes['small']['recall']:.4f}, medium "
+            f"{pedestrian_sizes['medium']['recall']:.4f}, large {pedestrian_sizes['large']['recall']:.4f}였고, cyclist는 "
+            f"각각 {cyclist_sizes['small']['recall']:.4f}, {cyclist_sizes['medium']['recall']:.4f}, "
+            f"{cyclist_sizes['large']['recall']:.4f}였다. 두 클래스 모두 작은 객체에서 약 2%만 검출되었고 큰 객체에서는 "
+            "약 73%까지 상승했다. 이 결과는 원거리의 작은 객체가 낮은 Recall과 강하게 연관됨을 정량적으로 지지한다. "
+            "다만 크기 외의 가림, 자세, 장면 복잡도를 통제하지 않았으므로 크기만이 유일한 원인이라고 단정하지 않는다."
+        )
+    ]
+
+    story += [PageBreak(), p("7.3 Validation-Test 성능 차이", h2)]
+    validation = analysis["validation_recheck"]
+    split_rows = [["클래스", "Val R", "Test R", "Val mAP50-95", "Test mAP50-95"]]
+    split_rows.append(
+        [
+            "전체 평균",
+            f"{validation['overall']['recall']:.4f}",
+            f"{test['overall']['recall']:.4f}",
+            f"{validation['overall']['map50_95']:.4f}",
+            f"{test['overall']['map50_95']:.4f}",
+        ]
+    )
+    for class_name in ("car", "pedestrian", "cyclist"):
+        split_rows.append(
+            [
+                class_name,
+                f"{validation['per_class'][class_name]['recall']:.4f}",
+                f"{test['per_class'][class_name]['recall']:.4f}",
+                f"{validation['per_class'][class_name]['map50_95']:.4f}",
+                f"{test['per_class'][class_name]['map50_95']:.4f}",
+            ]
+        )
+    story += [table(split_rows, [35 * mm, 30 * mm, 30 * mm, 37 * mm, 37 * mm])]
+    val_dist = analysis["split_distribution"]["val"]
+    test_dist = analysis["split_distribution"]["test"]
+    story += [
+        table(
+            [
+                ["분포", "Validation", "Test"],
+                ["이미지 / 개체", f"{val_dist['images']} / {val_dist['instances']}", f"{test_dist['images']} / {test_dist['instances']}"],
+                ["이미지당 개체 평균", f"{val_dist['instances_per_image']:.3f}", f"{test_dist['instances_per_image']:.3f}"],
+                ["이미지당 개체 중앙값 / 90백분위", f"{val_dist['objects_per_image_median']:.1f} / {val_dist['objects_per_image_p90']:.1f}", f"{test_dist['objects_per_image_median']:.1f} / {test_dist['objects_per_image_p90']:.1f}"],
+                ["pedestrian small / large 비율", f"{val_dist['per_class_size_instances']['pedestrian']['small'] / val_dist['class_instances']['pedestrian']:.1%} / {val_dist['per_class_size_instances']['pedestrian']['large'] / val_dist['class_instances']['pedestrian']:.1%}", f"{test_dist['per_class_size_instances']['pedestrian']['small'] / test_dist['class_instances']['pedestrian']:.1%} / {test_dist['per_class_size_instances']['pedestrian']['large'] / test_dist['class_instances']['pedestrian']:.1%}"],
+                ["pedestrian box 면적 중앙값", f"{val_dist['per_class_median_area_pixels']['pedestrian']:.1f} px²", f"{test_dist['per_class_median_area_pixels']['pedestrian']:.1f} px²"],
+            ],
+            [67 * mm, 50 * mm, 50 * mm],
+        ),
+        p(
+            f"재평가된 Validation mAP@0.5:0.95는 {validation['overall']['map50_95']:.4f}, Test는 "
+            f"{test['overall']['map50_95']:.4f}로 차이는 {analysis['validation_minus_test']['overall']['map50_95']:.4f}였다. "
+            "클래스 비중과 전체 small/medium/large 비중은 두 분할이 대체로 비슷했으므로 단순 클래스 구성만으로 차이를 "
+            "충분히 설명하기 어렵다. 반면 Test는 이미지당 개체가 평균 4.948개로 Validation 2.458개의 약 두 배이고, "
+            "중앙값과 90백분위도 각각 4/10 대 2/5로 더 조밀했다. 이는 가림과 중첩 가능성이 더 큰 분포임을 시사하지만, "
+            "직접 occlusion 라벨을 분석한 것은 아니므로 인과관계로 단정하지 않는다."
+        ),
+        p(
+            f"특히 Validation pedestrian은 small 0.0%, large 76.6%, box 면적 중앙값 "
+            f"{val_dist['per_class_median_area_pixels']['pedestrian']:.1f}px²였지만 Test는 small 26.8%, large 14.5%, "
+            f"중앙값 {test_dist['per_class_median_area_pixels']['pedestrian']:.1f}px²였다. 같은 모델의 pedestrian Recall이 "
+            f"{validation['per_class']['pedestrian']['recall']:.4f}에서 {test['per_class']['pedestrian']['recall']:.4f}로, "
+            f"mAP@0.5:0.95가 {validation['per_class']['pedestrian']['map50_95']:.4f}에서 "
+            f"{test['per_class']['pedestrian']['map50_95']:.4f}로 낮아진 현상과 방향이 일치한다. 이는 보행자 크기 분포 이동을 "
+            "주요 설명 후보로 강하게 지지하지만 통제 실험은 아니다."
+        ),
+        p(
+            "cyclist는 오히려 Validation의 small 비율이 Test보다 높았는데도 Test 성능이 낮았다. 따라서 cyclist의 분할 간 "
+            "차이는 객체 크기만으로 설명할 수 없다. 학습 표본 부족, 조밀한 Test 장면, 가림이나 자세 차이는 가능한 설명이지만 "
+            "이번 진단으로 각각의 효과를 분리하지 못했으므로 가설로만 남긴다."
+        ),
+    ]
+
+    story += [PageBreak(), p("8. 성공·실패 사례 분석", h1)]
     case_analysis = test["case_analysis"]
     aggregate = case_analysis["aggregate"]
     story += [
@@ -439,11 +605,11 @@ def main() -> None:
         p(
             "대표 실패는 작은 원거리 객체, 심한 가림, 한 객체의 중복 검출 또는 유사 외형에서 발생했다. 개선하려면 "
             "희소 클래스의 장면을 보강하고, 작은 객체에 유리한 입력 해상도·더 큰 모델·class-balanced sampling을 비교하며, "
-            "confusion matrix와 객체 크기 구간별 AP를 함께 분석할 필요가 있다."
+            "크기별 Recall 진단을 class-balanced 학습 및 해상도 통제 실험으로 확장할 필요가 있다."
         )
     ]
 
-    story += [PageBreak(), p("8. 5초 객체 추적 결과", h1)]
+    story += [PageBreak(), p("9. 5초 객체 추적 결과", h1)]
     source = tracking["source"]
     verification = tracking["verification"]
     per_frame = tracking["per_class_frame_count"]
@@ -477,9 +643,9 @@ def main() -> None:
     ]
     tracking_frame = PROJECT_ROOT / tracking["representative_frame"]
     if tracking_frame.exists():
-        story += [scaled_image(tracking_frame, max_height=95 * mm), p("그림 4. 학습 모델과 ByteTrack의 5초 영상 중 대표 프레임", caption)]
+        story += [scaled_image(tracking_frame, max_height=95 * mm), p("그림 7. 학습 모델과 ByteTrack의 5초 영상 중 대표 프레임", caption)]
 
-    story += [p("9. 수행 중 문제와 해결", h1)]
+    story += [p("10. 수행 중 문제와 해결", h1)]
     story += bullets(
         [
             "원본 분할 누수: 가까운 장면이 train/val 양쪽에 존재함을 시각적으로 확인하고, perceptual hash와 픽셀 유사도로 장면 그룹을 만든 뒤 그룹 단위로 다시 분할했다.",
@@ -488,20 +654,22 @@ def main() -> None:
             "희소 클래스: cyclist의 출현 수가 car보다 작아 클래스별 지표와 실패 사례를 따로 보고했다. 존재하지 않는 균형 데이터를 주장하지 않았다.",
             "추적 입력: 탐지용 KITTI 정지 프레임을 이어 붙이지 않고 별도의 실제 연속 영상과 이용 조건을 확보했다.",
             "아티팩트 일치: 보고서 생성기가 JSON·CSV·그림을 직접 읽게 하여 수치 전사 오류를 줄였다.",
+            "분할 성능 차이: 재학습 없이 confidence·크기·분할 분포를 측정해 확인된 연관성과 미검증 가설을 구분했다.",
         ]
     )
-    story += [p("10. 한계와 개선 방향", h1)]
+    story += [p("11. 한계와 개선 방향", h1)]
     story += bullets(
         [
             "KITTI 변환본에 공식 촬영 시퀀스 ID가 없어 유사도 기반 그룹화로도 모든 동일 주행 장면을 완전히 분리했다고 보장할 수 없다.",
             "MPS 일부 연산의 비결정론 때문에 동일 설정 재실행 시 마지막 자리 수가 달라질 수 있다.",
             "YOLOv8n 단일 모델·단일 seed만 사용했다. YOLOv8s, 입력 960, class-balanced sampling의 통제 실험을 추가하면 선택 근거가 강해진다.",
+            "객체 크기 분석은 고정 conf 0.25의 Recall 진단이다. 크기별 AP나 가림 수준별 성능을 측정한 것으로 해석하면 안 된다.",
             "추적 영상은 5초의 한 장면이므로 다양한 날씨·가림·카메라 이동에 대한 tracker 안정성을 대표하지 않는다.",
             "Pexels 영상의 도메인은 KITTI와 달라 실제 도메인 이동 성능을 보여 주지만, 해당 영상의 정답 라벨이 없어 추적 정확도를 수치화하지 않았다.",
         ]
     )
 
-    story += [p("11. 결론", h1)]
+    story += [p("12. 결론", h1)]
     story += [
         p(
             "KITTI의 8개 원본 클래스 구조를 검사하고 정확히 3개로 재매핑했으며, 장면 그룹 단위의 train/val/test를 구성했다. "
@@ -511,12 +679,14 @@ def main() -> None:
         ),
         p(
             "이 과제를 통해 높은 전체 지표만 제시하는 것보다 클래스 불균형, 데이터 누수, 평가 분할의 독립성, "
-            "실제 장치 제약과 실패 사례를 함께 기록해야 결과를 신뢰할 수 있음을 경험했다. 다음 단계에서는 cyclist 보강과 "
-            "작은 객체 성능을 우선 개선하고, 모델 크기·해상도·seed를 분리한 비교 실험을 수행하겠다."
+            "실제 장치 제약과 실패 사례를 함께 기록해야 결과를 신뢰할 수 있음을 경험했다. 추가 진단에서 threshold는 FP/FN의 "
+            "교환을 만들 뿐 성능을 일방적으로 개선하지 않았고, small pedestrian/cyclist Recall이 약 2%임을 확인했다. 또한 "
+            "Validation-Test 차이에는 보행자 크기 분포 이동과 Test 장면 밀도가 연관되어 있었지만 cyclist 차이는 크기만으로 "
+            "설명되지 않았다. 다음 단계에서는 cyclist 보강, 입력 해상도와 모델 크기를 분리한 통제 실험을 수행하겠다."
         ),
     ]
 
-    story += [PageBreak(), p("12. GitHub 및 참고자료", h1)]
+    story += [PageBreak(), p("13. GitHub 및 참고자료", h1)]
     story += [
         table(
             [
@@ -525,6 +695,7 @@ def main() -> None:
                 ["최종 모델", training["weight"]],
                 ["5초 영상", tracking["output"]],
                 ["테스트 지표", "results/metrics/test_metrics.json"],
+                ["추가 진단", "results/metrics/additional_analysis.json"],
                 ["보고서", str(output.relative_to(PROJECT_ROOT))],
             ],
             [43 * mm, 125 * mm],

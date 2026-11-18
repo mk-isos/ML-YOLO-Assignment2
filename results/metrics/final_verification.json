@@ -1,5 +1,5 @@
 {
-  "verified_at_utc": "2026-11-18T09:38:41.743224+00:00",
+  "verified_at_utc": "2026-11-18T09:58:17.911984+00:00",
   "core_passed": true,
   "all_passed_including_github": true,
   "checks": {
@@ -58,6 +58,36 @@
         "map50_95": 0.26924530986355427
       }
     },
+    "posthoc_diagnostics": {
+      "passed": true,
+      "details": {
+        "analysis_type": "post-hoc evaluation only; no model training or weight update",
+        "duration_seconds": 37.13988212507684,
+        "model_sha256": "7228f60ae38af5ca3dd1ec88686003bdcb0571aa4f865821b6caaf73a0cb8264",
+        "thresholds": [
+          0.05,
+          0.1,
+          0.25,
+          0.5,
+          0.75
+        ],
+        "pedestrian_size_recall": {
+          "small": 0.018726591760299626,
+          "medium": 0.40512820512820513,
+          "large": 0.7379310344827587
+        },
+        "cyclist_size_recall": {
+          "small": 0.02040816326530612,
+          "medium": 0.193717277486911,
+          "large": 0.7272727272727273
+        },
+        "artifacts": [
+          "results/plots/confidence_threshold_analysis.png",
+          "results/plots/size_recall_analysis.png",
+          "results/predictions/confidence_threshold_comparison.jpg"
+        ]
+      }
+    },
     "tracking_video": {
       "passed": true,
       "details": {
@@ -79,14 +109,22 @@
     "pdf_report": {
       "passed": true,
       "details": {
-        "pages": 10,
-        "bytes": 2290158,
+        "pages": 14,
+        "bytes": 3205869,
         "metric_tokens": [
           "0.5035",
           "0.2692",
           "5.000"
         ],
         "log_report_consistency": {
+          "author": {
+            "expected": "김문기",
+            "present": true
+          },
+          "student_id": {
+            "expected": "2021041023",
+            "present": true
+          },
           "python_torch": {
             "expected": "3.12.9 / 2.15.0",
             "present": true
@@ -150,9 +188,33 @@
           "video_duration_frames": {
             "expected": "5.000초 / 150 프레임",
             "present": true
+          },
+          "threshold_f1": {
+            "expected": "0.7291",
+            "present": true
+          },
+          "pedestrian_small_recall": {
+            "expected": "0.0187",
+            "present": true
+          },
+          "cyclist_small_recall": {
+            "expected": "0.0204",
+            "present": true
+          },
+          "validation_recheck_map50_95": {
+            "expected": "0.4062",
+            "present": true
+          },
+          "validation_test_gap": {
+            "expected": "0.1370",
+            "present": true
+          },
+          "test_instances_per_image": {
+            "expected": "4.948",
+            "present": true
           }
         },
-        "sha256": "7919fa823e3f9c88fc4c90b94447f477dd91ae30c2c1bce41e5b1758c2478c81"
+        "sha256": "b31448071981cce2d163f4c7ae78f539c22c7a78cf587f34bd844263b09a7519"
       }
     },
     "github_public_access": {

@@ -22,7 +22,28 @@
 - 5초 추적 영상: [`videos/kitti3_tracking_5s.mp4`](videos/kitti3_tracking_5s.mp4), 정확히 5.000초/150프레임/H.264
 - 추적 결과: 1,244개 검출 모두 track ID 포함, car/pedestrian/cyclist 모두 등장
 - 한국어 보고서: [`reports/final_report.pdf`](reports/final_report.pdf)
-- 상세 수치: [`results/metrics/test_metrics.json`](results/metrics/test_metrics.json), [`results/metrics/final_verification.json`](results/metrics/final_verification.json)
+- 상세 수치: [`results/metrics/test_metrics.json`](results/metrics/test_metrics.json), [`results/metrics/additional_analysis.json`](results/metrics/additional_analysis.json), [`results/metrics/final_verification.json`](results/metrics/final_verification.json)
+
+## 추가 진단 실험(재학습 없음)
+
+기존 `best.pt`를 변경하지 않고 Test 예측을 confidence별로 재평가했습니다. 아래 값은 IoU 0.5의 고정 threshold micro 지표로, 공식 mAP와는 다른 운영점 분석입니다.
+
+| Confidence | Precision | Recall | F1 |
+|---:|---:|---:|---:|
+| 0.05 | 0.3855 | 0.7913 | 0.5184 |
+| 0.10 | 0.5414 | 0.7539 | 0.6302 |
+| 0.25 | 0.7891 | 0.6775 | 0.7291 |
+| 0.50 | 0.9246 | 0.5438 | 0.6848 |
+| 0.75 | 0.9730 | 0.2639 | 0.4152 |
+
+- 표본 threshold 중 0.25에서 micro F1이 가장 높았습니다. threshold를 낮추면 Recall과 FP가 함께 늘고, 높이면 Precision과 FN이 함께 늘었습니다.
+- conf 0.25에서 small/medium/large Recall은 pedestrian `0.0187/0.4051/0.7379`, cyclist `0.0204/0.1937/0.7273`이었습니다. 크기 구간은 원본 영상 좌표의 COCO식 진단 기준이며 KITTI 공식 지표가 아닙니다.
+- Validation/Test의 이미지당 개체 수는 `2.458/4.948`이었습니다. Validation pedestrian은 large 76.6%, small 0.0%였지만 Test는 large 14.5%, small 26.8%여서 보행자 분포 이동이 확인되었습니다.
+- cyclist는 Validation의 small 비율이 더 높았는데도 Test 성능이 낮아, 분할 차이를 객체 크기만으로 설명할 수 없었습니다. 조밀도·가림·장면 차이는 가능한 가설이지만 이번 실험에서 원인별 효과를 분리하지 않았습니다.
+
+![Confidence threshold analysis](results/plots/confidence_threshold_analysis.png)
+
+![Object-size recall analysis](results/plots/size_recall_analysis.png)
 
 ## 클래스와 데이터
 
@@ -92,8 +113,9 @@ PYTORCH_ENABLE_MPS_FALLBACK=1 YOLO_CONFIG_DIR=.cache/ultralytics \
 ```bash
 python src/finalize_training.py
 python src/evaluate.py
+python src/analyze_diagnostics.py --device mps --batch 8
 python src/track_video.py
-python src/generate_report.py --author "이름" --student-id "학번"
+python src/generate_report.py --author "김문기" --student-id "2021041023"
 ```
 
 테스트:

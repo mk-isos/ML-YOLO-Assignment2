@@ -1,0 +1,500 @@
+{
+  "analysis_type": "post-hoc evaluation only; no model training or weight update",
+  "evaluated_at_utc": "2026-11-18T09:52:30.516586+00:00",
+  "duration_seconds": 37.13988212507684,
+  "model": "models/best.pt",
+  "model_sha256": "7228f60ae38af5ca3dd1ec88686003bdcb0571aa4f865821b6caaf73a0cb8264",
+  "device": "mps",
+  "settings": {
+    "imgsz": 640,
+    "batch": 8,
+    "prediction_min_confidence": 0.001,
+    "nms_iou": 0.7,
+    "matching_iou": 0.5,
+    "thresholds": [
+      0.05,
+      0.1,
+      0.25,
+      0.5,
+      0.75
+    ]
+  },
+  "validation_recheck": {
+    "overall": {
+      "precision": 0.7983754608727099,
+      "recall": 0.6818914737620956,
+      "map50": 0.717981896190452,
+      "map50_95": 0.4061954379380583
+    },
+    "per_class": {
+      "car": {
+        "precision": 0.7824024548590892,
+        "recall": 0.8757819481680071,
+        "map50": 0.8947416410567987,
+        "map50_95": 0.6313566578160653
+      },
+      "pedestrian": {
+        "precision": 0.8458419631866988,
+        "recall": 0.9032258064516129,
+        "map50": 0.9141358387872165,
+        "map50_95": 0.42443062321213043
+      },
+      "cyclist": {
+        "precision": 0.766881964572342,
+        "recall": 0.26666666666666666,
+        "map50": 0.34506820872734123,
+        "map50_95": 0.162799032785979
+      }
+    }
+  },
+  "test_reference": {
+    "overall": {
+      "precision": 0.6612203381183187,
+      "recall": 0.4534980414691179,
+      "map50": 0.5034788113162922,
+      "map50_95": 0.26924530986355427
+    },
+    "per_class": {
+      "car": {
+        "precision": 0.8235173322203266,
+        "recall": 0.7873050698909736,
+        "map50": 0.8409396912698873,
+        "map50_95": 0.5608738751076537
+      },
+      "pedestrian": {
+        "precision": 0.7467776300551032,
+        "recall": 0.34608282741015284,
+        "map50": 0.4426351372391082,
+        "map50_95": 0.1473912341824027
+      },
+      "cyclist": {
+        "precision": 0.41336605207952615,
+        "recall": 0.2271062271062271,
+        "map50": 0.22686160543988132,
+        "map50_95": 0.0994708203006064
+      }
+    }
+  },
+  "validation_minus_test": {
+    "overall": {
+      "precision": 0.13715512275439123,
+      "recall": 0.2283934322929777,
+      "map50": 0.2145030848741598,
+      "map50_95": 0.13695012807450402
+    },
+    "per_class": {
+      "car": {
+        "precision": -0.04111487736123742,
+        "recall": 0.08847687827703354,
+        "map50": 0.05380194978691133,
+        "map50_95": 0.07048278270841157
+      },
+      "pedestrian": {
+        "precision": 0.09906433313159557,
+        "recall": 0.55714297904146,
+        "map50": 0.4715007015481083,
+        "map50_95": 0.27703938902972775
+      },
+      "cyclist": {
+        "precision": 0.3535159124928159,
+        "recall": 0.03956043956043956,
+        "map50": 0.11820660328745991,
+        "map50_95": 0.06332821248537258
+      }
+    }
+  },
+  "confidence_thresholds": [
+    {
+      "threshold": 0.05,
+      "micro": {
+        "tp": 4213,
+        "fp": 6716,
+        "fn": 1111,
+        "precision": 0.38548815079147225,
+        "recall": 0.7913223140495868,
+        "f1": 0.5184273672552759
+      },
+      "per_class": {
+        "car": {
+          "tp": 3579,
+          "fp": 4719,
+          "fn": 475,
+          "precision": 0.43130874909616773,
+          "recall": 0.8828317710902812,
+          "f1": 0.5795012953367875
+        },
+        "pedestrian": {
+          "tp": 536,
+          "fp": 1139,
+          "fn": 461,
+          "precision": 0.32,
+          "recall": 0.5376128385155466,
+          "f1": 0.4011976047904192
+        },
+        "cyclist": {
+          "tp": 98,
+          "fp": 858,
+          "fn": 175,
+          "precision": 0.10251046025104603,
+          "recall": 0.358974358974359,
+          "f1": 0.1594792514239219
+        }
+      }
+    },
+    {
+      "threshold": 0.1,
+      "micro": {
+        "tp": 4014,
+        "fp": 3400,
+        "fn": 1310,
+        "precision": 0.5414081467493931,
+        "recall": 0.7539444027047333,
+        "f1": 0.6302402260951484
+      },
+      "per_class": {
+        "car": {
+          "tp": 3471,
+          "fp": 2383,
+          "fn": 583,
+          "precision": 0.5929279125384352,
+          "recall": 0.8561914158855451,
+          "f1": 0.7006459426725876
+        },
+        "pedestrian": {
+          "tp": 464,
+          "fp": 598,
+          "fn": 533,
+          "precision": 0.4369114877589454,
+          "recall": 0.4653961885656971,
+          "f1": 0.4507042253521127
+        },
+        "cyclist": {
+          "tp": 79,
+          "fp": 419,
+          "fn": 194,
+          "precision": 0.15863453815261044,
+          "recall": 0.2893772893772894,
+          "f1": 0.20492866407263294
+        }
+      }
+    },
+    {
+      "threshold": 0.25,
+      "micro": {
+        "tp": 3607,
+        "fp": 964,
+        "fn": 1717,
+        "precision": 0.7891052286151826,
+        "recall": 0.6774981217129977,
+        "f1": 0.729055078322385
+      },
+      "per_class": {
+        "car": {
+          "tp": 3196,
+          "fp": 745,
+          "fn": 858,
+          "precision": 0.8109616848515605,
+          "recall": 0.7883571780957079,
+          "f1": 0.7994996873045653
+        },
+        "pedestrian": {
+          "tp": 349,
+          "fp": 134,
+          "fn": 648,
+          "precision": 0.722567287784679,
+          "recall": 0.35005015045135407,
+          "f1": 0.4716216216216216
+        },
+        "cyclist": {
+          "tp": 62,
+          "fp": 85,
+          "fn": 211,
+          "precision": 0.4217687074829932,
+          "recall": 0.2271062271062271,
+          "f1": 0.29523809523809524
+        }
+      }
+    },
+    {
+      "threshold": 0.5,
+      "micro": {
+        "tp": 2895,
+        "fp": 236,
+        "fn": 2429,
+        "precision": 0.9246247205365697,
+        "recall": 0.5437640871525169,
+        "f1": 0.6848018923713778
+      },
+      "per_class": {
+        "car": {
+          "tp": 2705,
+          "fp": 208,
+          "fn": 1349,
+          "precision": 0.9285959491932715,
+          "recall": 0.6672422298963986,
+          "f1": 0.7765178699583751
+        },
+        "pedestrian": {
+          "tp": 148,
+          "fp": 13,
+          "fn": 849,
+          "precision": 0.9192546583850931,
+          "recall": 0.14844533600802406,
+          "f1": 0.25561312607944736
+        },
+        "cyclist": {
+          "tp": 42,
+          "fp": 15,
+          "fn": 231,
+          "precision": 0.7368421052631579,
+          "recall": 0.15384615384615385,
+          "f1": 0.2545454545454546
+        }
+      }
+    },
+    {
+      "threshold": 0.75,
+      "micro": {
+        "tp": 1405,
+        "fp": 39,
+        "fn": 3919,
+        "precision": 0.9729916897506925,
+        "recall": 0.2638993238166792,
+        "f1": 0.41518912529550833
+      },
+      "per_class": {
+        "car": {
+          "tp": 1388,
+          "fp": 39,
+          "fn": 2666,
+          "precision": 0.9726699369306236,
+          "recall": 0.3423778983719783,
+          "f1": 0.5064769202700237
+        },
+        "pedestrian": {
+          "tp": 2,
+          "fp": 0,
+          "fn": 995,
+          "precision": 1.0,
+          "recall": 0.0020060180541624875,
+          "f1": 0.004004004004004004
+        },
+        "cyclist": {
+          "tp": 15,
+          "fp": 0,
+          "fn": 258,
+          "precision": 1.0,
+          "recall": 0.054945054945054944,
+          "f1": 0.10416666666666666
+        }
+      }
+    }
+  ],
+  "size_recall": {
+    "confidence": 0.25,
+    "iou": 0.5,
+    "definition": {
+      "small": "area < 32^2 pixels",
+      "medium": "32^2 <= area < 96^2 pixels",
+      "large": "area >= 96^2 pixels",
+      "note": "COCO-style diagnostic bins on original KITTI image pixels; not an official KITTI metric."
+    },
+    "per_class": {
+      "car": {
+        "small": {
+          "ground_truth": 988,
+          "tp": 593,
+          "fn": 395,
+          "recall": 0.6002024291497976
+        },
+        "medium": {
+          "ground_truth": 2078,
+          "tp": 1676,
+          "fn": 402,
+          "recall": 0.8065447545717036
+        },
+        "large": {
+          "ground_truth": 988,
+          "tp": 927,
+          "fn": 61,
+          "recall": 0.9382591093117408
+        }
+      },
+      "pedestrian": {
+        "small": {
+          "ground_truth": 267,
+          "tp": 5,
+          "fn": 262,
+          "recall": 0.018726591760299626
+        },
+        "medium": {
+          "ground_truth": 585,
+          "tp": 237,
+          "fn": 348,
+          "recall": 0.40512820512820513
+        },
+        "large": {
+          "ground_truth": 145,
+          "tp": 107,
+          "fn": 38,
+          "recall": 0.7379310344827587
+        }
+      },
+      "cyclist": {
+        "small": {
+          "ground_truth": 49,
+          "tp": 1,
+          "fn": 48,
+          "recall": 0.02040816326530612
+        },
+        "medium": {
+          "ground_truth": 191,
+          "tp": 37,
+          "fn": 154,
+          "recall": 0.193717277486911
+        },
+        "large": {
+          "ground_truth": 33,
+          "tp": 24,
+          "fn": 9,
+          "recall": 0.7272727272727273
+        }
+      }
+    }
+  },
+  "split_distribution": {
+    "val": {
+      "images": 1179,
+      "instances": 2898,
+      "instances_per_image": 2.4580152671755724,
+      "objects_per_image_median": 2.0,
+      "objects_per_image_p90": 5.0,
+      "class_instances": {
+        "pedestrian": 465,
+        "car": 2238,
+        "cyclist": 195
+      },
+      "class_share": {
+        "car": 0.772256728778468,
+        "pedestrian": 0.16045548654244307,
+        "cyclist": 0.06728778467908902
+      },
+      "size_instances": {
+        "large": 608,
+        "small": 753,
+        "medium": 1537
+      },
+      "size_share": {
+        "small": 0.2598343685300207,
+        "medium": 0.5303657694962043,
+        "large": 0.209799861973775
+      },
+      "per_class_size_instances": {
+        "car": {
+          "small": 652,
+          "medium": 1345,
+          "large": 241
+        },
+        "pedestrian": {
+          "small": 0,
+          "medium": 109,
+          "large": 356
+        },
+        "cyclist": {
+          "small": 101,
+          "medium": 83,
+          "large": 11
+        }
+      },
+      "per_class_median_area_pixels": {
+        "car": 1733.6279003653908,
+        "pedestrian": 11451.632955316454,
+        "cyclist": 969.686519768089
+      }
+    },
+    "test": {
+      "images": 1076,
+      "instances": 5324,
+      "instances_per_image": 4.947955390334572,
+      "objects_per_image_median": 4.0,
+      "objects_per_image_p90": 10.0,
+      "class_instances": {
+        "car": 4054,
+        "cyclist": 273,
+        "pedestrian": 997
+      },
+      "class_share": {
+        "car": 0.7614575507137491,
+        "pedestrian": 0.18726521412471825,
+        "cyclist": 0.05127723516153268
+      },
+      "size_instances": {
+        "small": 1304,
+        "medium": 2854,
+        "large": 1166
+      },
+      "size_share": {
+        "small": 0.24492862509391436,
+        "medium": 0.5360631104432757,
+        "large": 0.2190082644628099
+      },
+      "per_class_size_instances": {
+        "car": {
+          "small": 988,
+          "medium": 2078,
+          "large": 988
+        },
+        "pedestrian": {
+          "small": 267,
+          "medium": 585,
+          "large": 145
+        },
+        "cyclist": {
+          "small": 49,
+          "medium": 191,
+          "large": 33
+        }
+      },
+      "per_class_median_area_pixels": {
+        "car": 3077.6401303949533,
+        "pedestrian": 2297.2201154381037,
+        "cyclist": 2557.575087030418
+      }
+    }
+  },
+  "confidence_comparison": {
+    "image": "005608.png",
+    "ground_truth_classes": [
+      "car",
+      "cyclist",
+      "pedestrian"
+    ],
+    "panels": [
+      {
+        "threshold": 0.1,
+        "tp": 10,
+        "fp": 25,
+        "fn": 3
+      },
+      {
+        "threshold": 0.25,
+        "tp": 7,
+        "fp": 7,
+        "fn": 6
+      },
+      {
+        "threshold": 0.5,
+        "tp": 4,
+        "fp": 0,
+        "fn": 9
+      }
+    ],
+    "output": "results/predictions/confidence_threshold_comparison.jpg",
+    "note": "Prediction boxes are class-colored; unmatched ground-truth boxes are red."
+  },
+  "artifacts": {
+    "confidence_plot": "results/plots/confidence_threshold_analysis.png",
+    "size_plot": "results/plots/size_recall_analysis.png",
+    "comparison_image": "results/predictions/confidence_threshold_comparison.jpg"
+  }
+}

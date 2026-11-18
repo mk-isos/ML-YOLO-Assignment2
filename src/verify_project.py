@@ -86,6 +86,42 @@ def main() -> None:
         "details": {"images": test["test_images"], **test["overall"]},
     }
 
+    analysis = read_json(METRICS / "additional_analysis.json")
+    thresholds = analysis["confidence_thresholds"]
+    size_recall = analysis["size_recall"]["per_class"]
+    analysis_artifacts = [PROJECT_ROOT / path for path in analysis["artifacts"].values()]
+    checks["posthoc_diagnostics"] = {
+        "passed": analysis["analysis_type"].startswith("post-hoc evaluation only")
+        and analysis["model_sha256"] == sha256_file(weight)
+        and [round(float(item["threshold"]), 2) for item in thresholds]
+        == [0.05, 0.10, 0.25, 0.50, 0.75]
+        and all(
+            0.0 <= float(item["micro"][metric]) <= 1.0
+            for item in thresholds
+            for metric in ("precision", "recall", "f1")
+        )
+        and all(path.exists() and path.stat().st_size > 0 for path in analysis_artifacts)
+        and int(analysis["split_distribution"]["val"]["images"])
+        == int(dataset["splits"]["val"]["images"])
+        and int(analysis["split_distribution"]["test"]["images"])
+        == int(dataset["splits"]["test"]["images"]),
+        "details": {
+            "analysis_type": analysis["analysis_type"],
+            "duration_seconds": analysis["duration_seconds"],
+            "model_sha256": analysis["model_sha256"],
+            "thresholds": [item["threshold"] for item in thresholds],
+            "pedestrian_size_recall": {
+                size: size_recall["pedestrian"][size]["recall"]
+                for size in ("small", "medium", "large")
+            },
+            "cyclist_size_recall": {
+                size: size_recall["cyclist"][size]["recall"]
+                for size in ("small", "medium", "large")
+            },
+            "artifacts": [str(path.relative_to(PROJECT_ROOT)) for path in analysis_artifacts],
+        },
+    }
+
     video = PROJECT_ROOT / "videos/kitti3_tracking_5s.mp4"
     tracking = read_json(METRICS / "tracking_metadata.json")
     duration = float(tracking["ffprobe"]["format"]["duration"])
@@ -124,6 +160,8 @@ def main() -> None:
         f"{duration:.3f}",
     ]
     consistency_tokens = {
+        "author": "김문기",
+        "student_id": "2021041023",
         "python_torch": f"{environment['python']} / {environment['torch']}",
         "ultralytics": str(environment["ultralytics"]),
         "completed_epochs": f"{training['completed_epochs']} Epoch",
@@ -149,6 +187,12 @@ def main() -> None:
         "pedestrian_map50_95": f"{float(test['per_class']['pedestrian']['map50_95']):.4f}",
         "cyclist_map50_95": f"{float(test['per_class']['cyclist']['map50_95']):.4f}",
         "video_duration_frames": f"{duration:.3f}초 / {tracking['decoded_frames']} 프레임",
+        "threshold_f1": f"{float(thresholds[2]['micro']['f1']):.4f}",
+        "pedestrian_small_recall": f"{float(size_recall['pedestrian']['small']['recall']):.4f}",
+        "cyclist_small_recall": f"{float(size_recall['cyclist']['small']['recall']):.4f}",
+        "validation_recheck_map50_95": f"{float(analysis['validation_recheck']['overall']['map50_95']):.4f}",
+        "validation_test_gap": f"{float(analysis['validation_minus_test']['overall']['map50_95']):.4f}",
+        "test_instances_per_image": f"{float(analysis['split_distribution']['test']['instances_per_image']):.3f}",
     }
     consistency = {
         key: {"expected": token, "present": token in extracted_text}
@@ -156,7 +200,7 @@ def main() -> None:
     }
     checks["pdf_report"] = {
         "passed": report.exists()
-        and len(reader.pages) >= 8
+        and len(reader.pages) >= 12
         and all(token in extracted_text for token in metric_tokens)
         and all(item["present"] for item in consistency.values()),
         "details": {
