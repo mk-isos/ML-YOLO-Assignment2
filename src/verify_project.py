@@ -13,6 +13,7 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
+import torch
 from pypdf import PdfReader
 from ultralytics import YOLO
 
@@ -100,6 +101,46 @@ def main() -> None:
             "early_stopping": early_stopping_evidence,
             "selection_metric": "validation mAP@0.5:0.95 (Ultralytics detection fitness weight 1.0)",
             "base_model": training_metadata["arguments"]["model"],
+        },
+    }
+
+    last_training_row = training_rows[-1]
+    logged_final_losses = {
+        "train_box": float(last_training_row["train/box_loss"]),
+        "train_cls": float(last_training_row["train/cls_loss"]),
+        "train_dfl": float(last_training_row["train/dfl_loss"]),
+        "val_box": float(last_training_row["val/box_loss"]),
+        "val_cls": float(last_training_row["val/cls_loss"]),
+        "val_dfl": float(last_training_row["val/dfl_loss"]),
+    }
+    checks["training_loss_epoch_basis"] = {
+        "passed": int(training["completed_epochs"]) == 16
+        and int(training["best_epoch"]) == 8
+        and all(
+            abs(float(training["final_losses"][name]) - value) < 1e-9
+            for name, value in logged_final_losses.items()
+        ),
+        "details": {
+            "table_basis": "last completed training epoch (Epoch 16), not Best Epoch 8",
+            "logged_final_losses": logged_final_losses,
+            "configured_epochs": training["configured_epochs"],
+            "completed_epochs": training["completed_epochs"],
+            "best_epoch": training["best_epoch"],
+            "patience": training_metadata["arguments"]["patience"],
+        },
+    }
+
+    environment = read_json(METRICS / "environment.json")
+    requirements_text = (PROJECT_ROOT / "requirements.txt").read_text(encoding="utf-8")
+    checks["training_environment_versions"] = {
+        "passed": training_metadata["torch"] == environment["torch"] == "2.15.0"
+        and "torch==2.15.0" in requirements_text,
+        "details": {
+            "primary_evidence_training_metadata": training_metadata["torch"],
+            "primary_evidence_environment_log": environment["torch"],
+            "requirements_pin": "torch==2.15.0" in requirements_text,
+            "current_venv_secondary_check": torch.__version__,
+            "interpretation": "The stored training-time metadata is primary; the current environment is only a consistency check.",
         },
     }
 
@@ -260,7 +301,6 @@ def main() -> None:
             rendered_page_sizes = [path.stat().st_size for path in rendered_pages]
     else:
         rendered_page_sizes = []
-    environment = read_json(METRICS / "environment.json")
     metric_tokens = [
         f"{float(test['overall']['map50']):.4f}",
         f"{float(test['overall']['map50_95']):.4f}",
@@ -270,6 +310,7 @@ def main() -> None:
         "author": "김문기",
         "student_id": "2021041023",
         "python_torch": f"{environment['python']} / {environment['torch']}",
+        "pytorch_training_metadata": f"{environment['torch']} (학습 당시 metadata)",
         "ultralytics": str(environment["ultralytics"]),
         "completed_epochs": f"{training['completed_epochs']} Epoch",
         "configured_epochs": f"최대 설정은 {training['configured_epochs']} Epoch",
@@ -311,6 +352,17 @@ def main() -> None:
             f"car {continuity['per_class']['car']['consecutive_frame_pairs']}/"
             f"{continuity['per_class']['car']['all_observed_frame_pairs']}"
         ),
+        "korean_leakage_limitation": "공식 촬영 시퀀스 ID가 제공되지 않는다",
+        "last_epoch_loss_table": f"마지막 Epoch({training['completed_epochs']}) 손실",
+        "loss_table_basis": "실제 학습이 종료된 Epoch 16의 값이며 Best Epoch 8의",
+        "experience_mps": "convolution backward, 1 Epoch smoke test, 전체 데이터 1 Epoch 벤치마크",
+        "experience_small_objects": "그 결과 small pedestrian과 cyclist의",
+        "success_case_1": "성공 사례 005917.png",
+        "success_case_2": "성공 사례 000639.png",
+        "success_case_3": "성공 사례 001928.png",
+        "failure_case_1": "실패 사례 004139.png",
+        "failure_case_2": "실패 사례 000134.png",
+        "failure_case_3": "실패 사례 005391.png",
         "final_report_name": FINAL_REPORT_NAME,
     }
     consistency = {

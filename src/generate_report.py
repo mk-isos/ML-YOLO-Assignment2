@@ -308,8 +308,10 @@ def main() -> None:
             "검증 결과 split 간 동일 SHA-256 이미지와 장면 그룹 중복은 0건이며 모든 라벨 좌표·클래스 ID가 유효했다."
         ),
         p(
-            f"<b>한계:</b> {escape(str(dataset['known_limitation']))} 따라서 동일 주행의 서로 다른 시점처럼 "
-            "시각적 유사도가 낮은 프레임까지 완전히 식별했다고 주장할 수는 없다."
+            "<b>남은 한계:</b> 사용한 KITTI 탐지 변환본에는 공식 촬영 시퀀스 ID가 제공되지 않는다. "
+            "따라서 perceptual hash와 저해상도 픽셀 유사도로 가까운 장면을 묶었지만, 같은 주행에서 촬영되었어도 "
+            "시점이나 구도가 크게 다른 프레임은 한 그룹으로 인식되지 않았을 수 있다. 확인된 동일 이미지와 유사 장면의 "
+            "분할 중복은 제거했으나, 탐지되지 않은 잔여 데이터 누수 가능성까지 완전히 배제했다고 주장하지 않는다."
         ),
     ]
 
@@ -350,7 +352,7 @@ def main() -> None:
         ["구분", "설정 / 측정값"],
         ["하드웨어", "MacBook Pro 18,3 · Apple M1 Pro (8 CPU / 14 GPU) · 16 GB"],
         ["운영체제", environment["platform"]],
-        ["Python / PyTorch", f"{environment['python']} / {environment['torch']}"],
+        ["Python / PyTorch", f"{environment['python']} / {environment['torch']} (학습 당시 metadata)"],
         ["Ultralytics", environment["ultralytics"]],
         ["가속기", f"MPS built={environment['mps_built']}, available={environment['mps_available']}"],
         ["모델 / 입력", "YOLOv8n / 640×640"],
@@ -395,14 +397,15 @@ def main() -> None:
     story += [
         table(
             [
-                ["최종 손실", "Box", "Class", "DFL"],
+                [f"마지막 Epoch({training['completed_epochs']}) 손실", "Box", "Class", "DFL"],
                 ["Train", f"{loss['train_box']:.4f}", f"{loss['train_cls']:.4f}", f"{loss['train_dfl']:.4f}"],
                 ["Validation", f"{loss['val_box']:.4f}", f"{loss['val_cls']:.4f}", f"{loss['val_dfl']:.4f}"],
             ],
             [40 * mm, 40 * mm, 40 * mm, 40 * mm],
         ),
         p(
-            "따라서 30은 허용한 최대 Epoch이고 16은 실제 완료 횟수이다. 최적 모델은 Epoch 8의 validation "
+            "위 손실 표는 training_results.csv의 마지막 행, 즉 실제 학습이 종료된 Epoch 16의 값이며 Best Epoch 8의 "
+            "손실이 아니다. 30은 허용한 최대 Epoch이고 16은 실제 완료 횟수이다. 최적 모델은 Epoch 8의 validation "
             "mAP@0.5:0.95 기준 best.pt이며, Epoch 16의 last.pt와 구별된다. 이후 test 평가는 best.pt만 사용했고 "
             "test 분할은 모델 선택과 조기 종료 판단에 사용하지 않았다."
         ),
@@ -735,14 +738,9 @@ def main() -> None:
     story += [p("10. 수행 중 문제와 해결", h1)]
     story += bullets(
         [
-            "원본 분할 누수: 가까운 장면이 train/val 양쪽에 존재함을 시각적으로 확인하고, perceptual hash와 픽셀 유사도로 장면 그룹을 만든 뒤 그룹 단위로 다시 분할했다.",
-            "MPS 가용성: 단순 API 확인에 그치지 않고 convolution backward와 1 Epoch smoke test를 실행했다. 샌드박스 밖 실제 장치에서 MPS가 사용됨을 기록했다.",
-            "학습 시간: 전체 1 Epoch 벤치마크를 먼저 수행해 약 4분을 측정하고 30 Epoch·batch 8을 선택했다.",
-            "희소 클래스: cyclist의 출현 수가 car보다 작아 클래스별 지표와 실패 사례를 따로 보고했다. 존재하지 않는 균형 데이터를 주장하지 않았다.",
-            "추적 입력: 탐지용 KITTI 정지 프레임을 이어 붙이지 않고 별도의 실제 연속 영상과 이용 조건을 확보했다.",
-            "아티팩트 일치: 보고서 생성기가 JSON·CSV·그림을 직접 읽게 하여 수치 전사 오류를 줄였다.",
-            "분할 성능 차이: 재학습 없이 confidence·크기·분할 분포를 측정해 확인된 연관성과 미검증 가설을 구분했다.",
-            "전이학습 설명: 집계형 Transferred 문구에만 의존하지 않고 같은 버전 로더와 출력 텐서를 감사해 클래스별 재사용 범위를 확인했다.",
+            "데이터 구성 과정에서는 KITTI 변환본이 8개 클래스로 되어 있어 과제의 3개 부류와 바로 맞지 않았고, 원본 train/val에는 가까운 장면도 섞여 있었다. 전체 라벨을 먼저 검사해 car·pedestrian·cyclist만 0·1·2로 재매핑하고, 시각적으로 확인한 유사 프레임을 바탕으로 perceptual hash와 픽셀 유사도 장면 그룹을 만들어 그룹 단위로 다시 분할했다. 이 과정에서 라벨 ID와 중복을 자동 검사하는 절차가 모델 학습만큼 중요하다는 점을 확인했다.",
+            "Apple M1 Pro에서는 MPS가 표시되는지만 확인해서는 실제 학습 가능 여부와 시간을 판단하기 어려웠다. convolution backward, 1 Epoch smoke test, 전체 데이터 1 Epoch 벤치마크를 차례로 실행해 약 4분/Epoch를 확인한 뒤 최대 30 Epoch·batch 8·patience 8을 정했다. 실제 학습은 Epoch 16에서 조기 종료되었고 Epoch 8이 best.pt로 선택되어, 최대 설정 Epoch와 실제 종료 Epoch, 최적 가중치 Epoch를 구분해 기록해야 함을 배웠다.",
+            "Validation보다 Test 성능이 크게 낮아졌을 때는 단순히 과적합이라고 단정하지 않고 클래스별 지표, confidence threshold, 객체 크기와 장면 밀도를 다시 확인했다. 그 결과 small pedestrian과 cyclist의 Recall이 약 2%였고 Test의 보행자 크기 분포와 객체 밀도가 Validation과 달랐다. Threshold 조정은 Precision과 Recall의 교환일 뿐 모델 자체를 개선하지 않으며, 확인된 분포 차이도 인과관계가 아니라 설명 후보로 다뤄야 한다는 점을 확인했다.",
         ]
     )
     story += [p("11. 한계와 개선 방향", h1)]
