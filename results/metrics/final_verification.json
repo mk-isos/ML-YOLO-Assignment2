@@ -1,5 +1,5 @@
 {
-  "verified_at_utc": "2026-11-19T07:06:41.410560+00:00",
+  "verified_at_utc": "2026-11-19T07:25:06.582123+00:00",
   "core_passed": true,
   "all_passed_including_github": true,
   "checks": {
@@ -54,6 +54,34 @@
         },
         "selection_metric": "validation mAP@0.5:0.95 (Ultralytics detection fitness weight 1.0)",
         "base_model": "yolov8n.pt"
+      }
+    },
+    "training_loss_epoch_basis": {
+      "passed": true,
+      "details": {
+        "table_basis": "last completed training epoch (Epoch 16), not Best Epoch 8",
+        "logged_final_losses": {
+          "train_box": 1.0136,
+          "train_cls": 0.63603,
+          "train_dfl": 0.96312,
+          "val_box": 1.29455,
+          "val_cls": 0.85181,
+          "val_dfl": 1.0405
+        },
+        "configured_epochs": 30,
+        "completed_epochs": 16,
+        "best_epoch": 8,
+        "patience": 8
+      }
+    },
+    "training_environment_versions": {
+      "passed": true,
+      "details": {
+        "primary_evidence_training_metadata": "2.15.0",
+        "primary_evidence_environment_log": "2.15.0",
+        "requirements_pin": true,
+        "current_venv_secondary_check": "2.15.0",
+        "interpretation": "The stored training-time metadata is primary; the current environment is only a consistency check."
       }
     },
     "transfer_learning_audit": {
@@ -211,7 +239,7 @@
         "filename": "머신러닝_과제2_2021041023_김문기.pdf",
         "old_report_absent": true,
         "pages": 16,
-        "bytes": 3274347,
+        "bytes": 3274795,
         "metadata": {
           "title": "머신러닝 과제 2 - YOLOv8 Fine-tuning을 이용한 3개 부류 객체 탐지 및 추적",
           "author": "김문기",
@@ -240,6 +268,10 @@
           },
           "python_torch": {
             "expected": "3.12.9 / 2.15.0",
+            "present": true
+          },
+          "pytorch_training_metadata": {
+            "expected": "2.15.0 (학습 당시 metadata)",
             "present": true
           },
           "ultralytics": {
@@ -358,12 +390,56 @@
             "expected": "car 485/498",
             "present": true
           },
+          "korean_leakage_limitation": {
+            "expected": "공식 촬영 시퀀스 ID가 제공되지 않는다",
+            "present": true
+          },
+          "last_epoch_loss_table": {
+            "expected": "마지막 Epoch(16) 손실",
+            "present": true
+          },
+          "loss_table_basis": {
+            "expected": "실제 학습이 종료된 Epoch 16의 값이며 Best Epoch 8의",
+            "present": true
+          },
+          "experience_mps": {
+            "expected": "convolution backward, 1 Epoch smoke test, 전체 데이터 1 Epoch 벤치마크",
+            "present": true
+          },
+          "experience_small_objects": {
+            "expected": "그 결과 small pedestrian과 cyclist의",
+            "present": true
+          },
+          "success_case_1": {
+            "expected": "성공 사례 005917.png",
+            "present": true
+          },
+          "success_case_2": {
+            "expected": "성공 사례 000639.png",
+            "present": true
+          },
+          "success_case_3": {
+            "expected": "성공 사례 001928.png",
+            "present": true
+          },
+          "failure_case_1": {
+            "expected": "실패 사례 004139.png",
+            "present": true
+          },
+          "failure_case_2": {
+            "expected": "실패 사례 000134.png",
+            "present": true
+          },
+          "failure_case_3": {
+            "expected": "실패 사례 005391.png",
+            "present": true
+          },
           "final_report_name": {
             "expected": "머신러닝_과제2_2021041023_김문기.pdf",
             "present": true
           }
         },
-        "sha256": "7fe61c20258249d8a8c8032841765c443b3b78b5e54ea1a1fe162f344ec11f6d"
+        "sha256": "1e974ceda29e2f09f475266bad7b2fccb551d9a9a45087e97c6306f072ba13fa"
       }
     },
     "readme_consistency": {
@@ -455,8 +531,8 @@
           },
           "report": {
             "path": "reports/머신러닝_과제2_2021041023_김문기.pdf",
-            "local_bytes": 3274347,
-            "remote_bytes": 3274347,
+            "local_bytes": 3274795,
+            "remote_bytes": 3274795,
             "download_url": "https://raw.githubusercontent.com/mk-isos/ML-YOLO-Assignment2/main/reports/머신러닝_과제2_2021041023_김문기.pdf",
             "error": ""
           },
