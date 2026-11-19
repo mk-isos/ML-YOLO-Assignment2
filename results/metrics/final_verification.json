@@ -1,5 +1,5 @@
 {
-  "verified_at_utc": "2026-11-18T10:36:28.292585+00:00",
+  "verified_at_utc": "2026-11-19T07:06:41.410560+00:00",
   "core_passed": true,
   "all_passed_including_github": true,
   "checks": {
@@ -363,7 +363,7 @@
             "present": true
           }
         },
-        "sha256": "4a476b6a5dbfa9dc4530640583b95a00fa3d3d423d6e479279d57f937df46746"
+        "sha256": "7fe61c20258249d8a8c8032841765c443b3b78b5e54ea1a1fe162f344ec11f6d"
       }
     },
     "readme_consistency": {
